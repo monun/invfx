@@ -11,8 +11,8 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
-abstract class InvWindow(size: Int, title: String) {
-    val inventory: Inventory = Bukkit.createInventory(Holder(), size, title)
+abstract class InvWindow(lines: Int, title: String) {
+    val inventory: Inventory = Bukkit.createInventory(Holder(), lines * 9, title)
 
     inner class Holder : InventoryHolder {
         val window: InvWindow = this@InvWindow
@@ -28,6 +28,8 @@ abstract class InvWindow(size: Int, title: String) {
 
     open fun onClose(event: InventoryCloseEvent) {}
 
+    open fun onClickOutside(event: InventoryClickEvent) {}
+
     open fun onClickTop(event: InventoryClickEvent) {}
 
     open fun onClickBottom(event: InventoryClickEvent) {}
@@ -37,12 +39,17 @@ abstract class InvWindow(size: Int, title: String) {
     open fun onPickupItem(event: EntityPickupItemEvent) {}
 
     open fun onDropItem(event: PlayerDropItemEvent) {}
+
 }
 
-fun Player.openWindow(window: InvWindow) : Boolean{
-    if (window.canOpen(this)) {
-        return openInventory(window.inventory) != null
+internal val Inventory.window: InvWindow?
+    get() {
+        holder?.let {
+            if (it is InvWindow.Holder) return it.window
+        }
+        return null
     }
 
-    return false
+fun Player.openWindow(window: InvWindow): Boolean {
+    return openInventory(window.inventory) != null
 }

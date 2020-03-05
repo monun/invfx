@@ -38,8 +38,8 @@ tasks {
             expand(project.properties)
         }
     }
-//    create<Copy>("distJar") {
-//        from(jar)
-//        into("W:\\Servers\\distServer\\plugins")
-//    }
+    create<Copy>("distJar") {
+        from(jar)
+        into("W:\\Servers\\test\\plugins")
+    }
 }
