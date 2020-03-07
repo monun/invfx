@@ -3,22 +3,32 @@ package com.github.noonmaru.winventory
 import com.google.common.collect.ImmutableList
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.inventory.ItemStack
 
 class InvFrameBuilder(lines: Int, val title: String) : PanelBuilder(0, 0, 9, lines) {
+    internal val openListeners = ArrayList<(InventoryOpenEvent) -> Unit>(0)
+    internal val closeListener = ArrayList<(InventoryCloseEvent) -> Unit>(0)
+    internal val clickBottomListener = ArrayList<(InventoryClickEvent) -> Unit>(0)
+
+    fun onOpen(listener: (InventoryOpenEvent) -> Unit) {
+        openListeners += listener
+    }
+
+    fun onClose(listener: (InventoryCloseEvent) -> Unit) {
+        closeListener += listener
+    }
+
+    fun onClickBottom(listener: (InventoryClickEvent) -> Unit) {
+        clickBottomListener += listener
+    }
+
     fun build(): InvFrame {
         return InvFrame(this)
     }
-}
-
-fun frameBuilder(lines: Int, title: String, init: InvFrameBuilder.() -> Unit): InvFrameBuilder {
-    return InvFrameBuilder(lines, title).apply(init)
-}
-
-fun frame(lines: Int, title: String, init: InvFrameBuilder.() -> Unit): InvFrame {
-    return frameBuilder(lines, title, init).build()
 }
 
 open class PanelBuilder(x: Int, y: Int, internal val width: Int, internal val height: Int) {
@@ -27,18 +37,18 @@ open class PanelBuilder(x: Int, y: Int, internal val width: Int, internal val he
     internal val maxX = x + width - 1
     internal val maxY = y + height - 1
 
-    internal val panels = mutableListOf<PanelBuilder>()
-    internal val buttons = mutableListOf<ButtonBuilder>()
+    internal val panels = ArrayList<PanelBuilder>(0)
+    internal val buttons = ArrayList<ButtonBuilder>(0)
 
-    internal var receiver: ((InvPanel) -> Unit)? = null
-    internal var clickListener: ((InventoryClickEvent) -> Unit)? = null
+    internal val initListeners = ArrayList<(InvPanel) -> Unit>(0)
+    internal val clickListeners = ArrayList<(InventoryClickEvent) -> Unit>(0)
 
-    fun receive(receiver: (InvPanel) -> Unit) {
-        this.receiver = receiver
+    fun onInitPanel(listener: (InvPanel) -> Unit) {
+        initListeners += listener
     }
 
-    fun onClick(clickListener: (InventoryClickEvent) -> Unit) {
-        this.clickListener = clickListener
+    fun onClickPanel(listener: (InventoryClickEvent) -> Unit) {
+        clickListeners += listener
     }
 
     fun panel(x: Int, y: Int, width: Int, height: Int, init: (PanelBuilder.() -> Unit)? = null) {
@@ -73,17 +83,20 @@ open class PanelBuilder(x: Int, y: Int, internal val width: Int, internal val he
     }
 }
 
+fun frame(lines: Int, title: String, init: InvFrameBuilder.() -> Unit): InvFrame {
+    return InvFrameBuilder(lines, title).apply(init).build()
+}
+
 class ButtonBuilder(val x: Int, val y: Int, val item: ItemStack?) {
-    internal var receiver: ((InvButton) -> Unit)? = null
+    internal val initListeners = ArrayList<(InvButton) -> Unit>(0)
+    internal val clickListeners = ArrayList<(InventoryClickEvent) -> Unit>(0)
 
-    internal var clickListener: ((InventoryClickEvent) -> Unit)? = null
-
-    fun receive(receiver: (InvButton) -> Unit) {
-        this.receiver = receiver
+    fun onInitButton(listener: (InvButton) -> Unit) {
+        initListeners += listener
     }
 
-    fun onClick(clickListener: (InventoryClickEvent) -> Unit) {
-        this.clickListener = clickListener
+    fun onClickButton(listener: (InventoryClickEvent) -> Unit) {
+        clickListeners += listener
     }
 }
 
@@ -93,8 +106,8 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
         override val minY = builder.minY
         override val maxX = builder.maxX
         override val maxY = builder.maxY
-        internal val clickListener = builder.clickListener
 
+        internal val clickListeners: List<(InventoryClickEvent) -> Unit>
         override val panels: List<Panel>
         override val buttons: List<Button>
 
@@ -107,10 +120,13 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
             }
 
         init {
+            this.clickListeners = ImmutableList.copyOf(builder.clickListeners)
             this.panels = ImmutableList.copyOf(builder.panels.map { Panel(this, it) })
             this.buttons = ImmutableList.copyOf(builder.buttons.map { Button(this, it) })
 
-            builder.receiver?.invoke(this)
+            builder.initListeners.forEach {
+                it.runCatching { this(this@Panel) }
+            }
         }
 
         override fun panelAt(x: Int, y: Int): Panel? {
@@ -121,9 +137,12 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
             return buttons.find { x == it.x && y == it.y }
         }
 
-        fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
-            clickListener?.invoke(event)
-            buttonAt(x, y)?.clickListener?.invoke(event)
+        internal fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
+            clickListeners.forEach { it.runCatching { it(event) } }
+
+            buttonAt(x, y)?.run {
+                clickListeners.forEach { it.runCatching { it(event) } }
+            }
 
             panelAt(x, y)?.run {
                 val relX = x - minX
@@ -153,7 +172,7 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
     private inner class Button(val panel: Panel, builder: ButtonBuilder) : InvButton {
         override val x = builder.x
         override val y = builder.y
-        internal val clickListener: ((InventoryClickEvent) -> Unit)? = builder.clickListener
+        internal val clickListeners: List<(InventoryClickEvent) -> Unit>
 
         override var item: ItemStack?
             get() = panel.getItem(x, y)
@@ -162,15 +181,35 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
             }
 
         init {
+            clickListeners = ImmutableList.copyOf(builder.clickListeners)
             builder.item?.let { this.item = it }
-            builder.receiver?.invoke(this)
+
+            builder.initListeners.forEach { it.runCatching { it(this@Button) } }
         }
     }
 
     private val rootPanel = Panel(null, builder)
+    private val openListeners: List<(InventoryOpenEvent) -> Unit>
+    private val closeListeners: List<(InventoryCloseEvent) -> Unit>
+    private val clickBottomListeners: List<(InventoryClickEvent) -> Unit>
+
+    init {
+        openListeners = ImmutableList.copyOf(builder.openListeners)
+        closeListeners = ImmutableList.copyOf(builder.closeListener)
+        clickBottomListeners = ImmutableList.copyOf(builder.clickBottomListener)
+    }
+
+    override fun onOpen(event: InventoryOpenEvent) {
+        openListeners.forEach { it.runCatching { it(event) } }
+    }
+
+    override fun onClose(event: InventoryCloseEvent) {
+        closeListeners.forEach { it.runCatching { it(event) } }
+    }
 
     override fun onClickOutside(event: InventoryClickEvent) {
         event.isCancelled = true
+
     }
 
     override fun onClickTop(event: InventoryClickEvent) {
@@ -184,6 +223,8 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
 
     override fun onClickBottom(event: InventoryClickEvent) {
         event.isCancelled = true
+
+        clickBottomListeners.forEach { it.runCatching { it(event) } }
     }
 
     override fun onDrag(event: InventoryDragEvent) {

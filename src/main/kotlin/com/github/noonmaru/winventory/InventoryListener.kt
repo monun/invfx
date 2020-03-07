@@ -13,13 +13,7 @@ import org.bukkit.event.player.PlayerDropItemEvent
 class InventoryListener : Listener {
     @EventHandler
     fun onOpen(event: InventoryOpenEvent) {
-        event.inventory.window?.let {
-            if (it.canOpen(event.player as Player)) {
-                it.onOpen(event)
-            } else {
-                event.isCancelled = true
-            }
-        }
+        event.inventory.window?.onOpen(event)
     }
 
     @EventHandler
