@@ -7,204 +7,151 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.PlayerInventory
 
-class InvFrameBuilder(lines: Int, val title: String) : PanelBuilder(0, 0, 9, lines) {
-    internal val openListeners = ArrayList<(InventoryOpenEvent) -> Unit>(0)
-    internal val closeListener = ArrayList<(InventoryCloseEvent) -> Unit>(0)
-    internal val clickBottomListener = ArrayList<(InventoryClickEvent) -> Unit>(0)
+interface InvPanel {
+    val parent: InvPanel?
+    val minX: Int
+    val minY: Int
+    val maxX: Int
+    val maxY: Int
+    val panels: List<InvPanel>
+    val buttons: List<InvButton>
+    val indexOffset: Int
 
-    fun onOpen(listener: (InventoryOpenEvent) -> Unit) {
-        openListeners += listener
+    fun panelAt(x: Int, y: Int): InvPanel?
+
+    fun buttonAt(x: Int, y: Int): InvButton?
+
+    fun toIndex(x: Int, y: Int): Int
+
+    fun getItem(x: Int, y: Int): ItemStack?
+
+    fun setItem(x: Int, y: Int, item: ItemStack?)
+}
+
+interface InvListView : InvPanel {
+    val listX: Int
+    val listY: Int
+    val listWidth: Int
+    val listHeight: Int
+    val listSize: Int
+        get() = listWidth * listHeight
+    var page: Int
+
+    fun first() {
+        page = 0
     }
 
-    fun onClose(listener: (InventoryCloseEvent) -> Unit) {
-        closeListener += listener
+    fun last() {
+        page = Int.MAX_VALUE
     }
+}
 
-    fun onClickBottom(listener: (InventoryClickEvent) -> Unit) {
-        clickBottomListener += listener
-    }
+interface InvButton {
+    val parent: InvPanel
+    val x: Int
+    val y: Int
+    var item: ItemStack?
+        get() = parent.getItem(x, y)
+        set(value) = parent.setItem(x, y, value)
+}
+
+class FrameBuilder(val line: Int, val title: String) : PanelBuilder(0, 0, 9, line) {
+    var onClickBottom: (InvFrame, PlayerInventory, InventoryClickEvent) -> Unit = { _, _, _ -> }
 
     fun build(): InvFrame {
         return InvFrame(this)
     }
 }
 
-open class PanelBuilder(x: Int, y: Int, internal val width: Int, internal val height: Int) {
-    internal val minX = x
-    internal val minY = y
-    internal val maxX = x + width - 1
-    internal val maxY = y + height - 1
+open class PanelBuilder(internal val x: Int, internal val y: Int, internal val width: Int, internal val height: Int) {
+    var onInit: (InvPanel) -> Unit = { }
+    var onOpen: (InvPanel, InventoryOpenEvent) -> Unit = { _, _ -> }
+    var onClose: (InvPanel, InventoryCloseEvent) -> Unit = { _, _ -> }
+    var onClick: (panel: InvPanel, x: Int, y: Int, event: InventoryClickEvent) -> Unit = { _, _, _, _ -> }
 
     internal val panels = ArrayList<PanelBuilder>(0)
     internal val buttons = ArrayList<ButtonBuilder>(0)
 
-    internal val initListeners = ArrayList<(InvPanel) -> Unit>(0)
-    internal val clickListeners = ArrayList<(InventoryClickEvent) -> Unit>(0)
-
-    fun onInitPanel(listener: (InvPanel) -> Unit) {
-        initListeners += listener
+    fun addPanel(x: Int, y: Int, width: Int, height: Int, init: PanelBuilder.() -> Unit) {
+        this.panels += PanelBuilder(x, y, width, height).apply(init)
     }
 
-    fun onClickPanel(listener: (InventoryClickEvent) -> Unit) {
-        clickListeners += listener
+    fun <T> addListView(x: Int, y: Int, width: Int, height: Int, init: ListViewBuilder<T>.() -> Unit) {
+        panels += ListViewBuilder<T>(x, y, width, height).apply(init)
     }
 
-    fun panel(x: Int, y: Int, width: Int, height: Int, init: (PanelBuilder.() -> Unit)? = null) {
-        check(x, y, width, height)
-
-        val builder = PanelBuilder(x, y, width, height)
-        panels += builder
-
-        init?.invoke(builder)
+    fun addButton(x: Int, y: Int, init: ButtonBuilder.() -> Unit) {
+        this.buttons += ButtonBuilder(x, y).apply(init)
     }
 
-    private fun check(x: Int, y: Int, width: Int, height: Int) {
-        require(width > 0 && height > 0) { "Zero size" }
-
-        val minX = x + this.minX
-        val minY = y + this.minY
-        val maxX = minX + width - 1
-        val maxY = minY + height - 1
-
-        require(this.minX <= minX && this.maxX >= maxX && this.minY <= minY && this.maxY >= maxY) { "Out of range" }
-        require(panels.find { it.minX <= maxX && it.maxX >= minX && it.minY <= maxY && it.maxY >= minY } == null) { "Overlap with other panels" }
-    }
-
-    fun button(x: Int, y: Int, item: ItemStack? = null, init: (ButtonBuilder.() -> Unit)? = null) {
-        require(x >= 0 && y >= 0 && x <= width && y <= height) { "Out of range" }
-        require(buttons.find { it.x == x && it.y == y } == null) { "Overlap with other buttons" }
-
-        val builder = ButtonBuilder(x, y, item)
-        buttons += builder
-
-        init?.invoke(builder)
+    internal open fun build(inventory: Inventory, parent: InvPanel?): InvPanelImpl {
+        return InvPanelImpl(this, inventory, parent)
     }
 }
 
-fun frame(lines: Int, title: String, init: InvFrameBuilder.() -> Unit): InvFrame {
-    return InvFrameBuilder(lines, title).apply(init).build()
+class ListViewBuilder<T>(x: Int, y: Int, width: Int, height: Int) : PanelBuilder(x, y, width, height) {
+
+    internal var list: ListBuilder<T>? = null
+
+    fun setList(
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        list: () -> List<T>,
+        transform: (T) -> ItemStack,
+        init: ListBuilder<T>.() -> Unit
+    ) {
+        this.list = ListBuilder(x, y, width, height, list, transform).apply(init)
+    }
+
+    override fun build(inventory: Inventory, parent: InvPanel?): InvPanelImpl {
+        val list = this.list ?: return InvPanelImpl(this, inventory, parent)
+
+        return InvListViewImpl(this, list, inventory, parent)
+    }
 }
 
-class ButtonBuilder(val x: Int, val y: Int, val item: ItemStack?) {
-    internal val initListeners = ArrayList<(InvButton) -> Unit>(0)
-    internal val clickListeners = ArrayList<(InventoryClickEvent) -> Unit>(0)
+class ListBuilder<T>(
+    val x: Int,
+    val y: Int,
+    val width: Int,
+    val height: Int,
+    val list: () -> List<T>,
+    val transform: (T) -> ItemStack
+) {
+    var onClickItem: (T, InventoryClickEvent) -> Unit = { _, _ -> }
+}
 
-    fun onInitButton(listener: (InvButton) -> Unit) {
-        initListeners += listener
-    }
+class ButtonBuilder(val x: Int, val y: Int) {
+    var onInit: (InvButton) -> Unit = { }
+    var onClick: (InvPanel, InvButton, InventoryClickEvent) -> Unit = { _, _, _ -> }
 
-    fun onClickButton(listener: (InventoryClickEvent) -> Unit) {
-        clickListeners += listener
+    internal fun build(parent: InvPanelImpl): InvButtonImpl {
+        return InvButtonImpl(parent, this)
     }
 }
 
-class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.title) {
-    private inner class Panel(val parent: Panel?, builder: PanelBuilder) : InvPanel {
-        override val minX = builder.minX
-        override val minY = builder.minY
-        override val maxX = builder.maxX
-        override val maxY = builder.maxY
+fun frame(line: Int, title: String, init: FrameBuilder.() -> Unit): InvFrame {
+    return FrameBuilder(line, title).apply(init).build()
+}
 
-        internal val clickListeners: List<(InventoryClickEvent) -> Unit>
-        override val panels: List<Panel>
-        override val buttons: List<Button>
-
-        val indexOffset: Int
-            get() {
-                var offset = minX + minY * 9
-                parent?.let { offset += it.indexOffset }
-
-                return offset
-            }
-
-        init {
-            this.clickListeners = ImmutableList.copyOf(builder.clickListeners)
-            this.panels = ImmutableList.copyOf(builder.panels.map { Panel(this, it) })
-            this.buttons = ImmutableList.copyOf(builder.buttons.map { Button(this, it) })
-
-            builder.initListeners.forEach {
-                it.runCatching { this(this@Panel) }
-            }
-        }
-
-        override fun panelAt(x: Int, y: Int): Panel? {
-            return panels.find { it.minX <= x && it.maxX >= x && it.minY <= y && it.maxY >= y }
-        }
-
-        override fun buttonAt(x: Int, y: Int): Button? {
-            return buttons.find { x == it.x && y == it.y }
-        }
-
-        internal fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
-            clickListeners.forEach { it.runCatching { it(event) } }
-
-            buttonAt(x, y)?.run {
-                clickListeners.forEach { it.runCatching { it(event) } }
-            }
-
-            panelAt(x, y)?.run {
-                val relX = x - minX
-                val relY = y - minY
-
-                onClick(relX, relY, event)
-            }
-
-            toIndex(x, y)
-        }
-
-        override fun getItem(x: Int, y: Int): ItemStack? {
-            return inventory.getItem(toIndex(x, y))
-        }
-
-        override fun setItem(x: Int, y: Int, item: ItemStack?) {
-            inventory.setItem(toIndex(x, y), item)
-        }
-
-        private fun toIndex(x: Int, y: Int): Int {
-            require(x >= 0 && y >= 0 && x <= maxX - minX && y <= maxY - minY) { "Out of range" }
-
-            return indexOffset + x + y * 9
-        }
-    }
-
-    private inner class Button(val panel: Panel, builder: ButtonBuilder) : InvButton {
-        override val x = builder.x
-        override val y = builder.y
-        internal val clickListeners: List<(InventoryClickEvent) -> Unit>
-
-        override var item: ItemStack?
-            get() = panel.getItem(x, y)
-            set(value) {
-                panel.setItem(x, y, value)
-            }
-
-        init {
-            clickListeners = ImmutableList.copyOf(builder.clickListeners)
-            builder.item?.let { this.item = it }
-
-            builder.initListeners.forEach { it.runCatching { it(this@Button) } }
-        }
-    }
-
-    private val rootPanel = Panel(null, builder)
-    private val openListeners: List<(InventoryOpenEvent) -> Unit>
-    private val closeListeners: List<(InventoryCloseEvent) -> Unit>
-    private val clickBottomListeners: List<(InventoryClickEvent) -> Unit>
-
-    init {
-        openListeners = ImmutableList.copyOf(builder.openListeners)
-        closeListeners = ImmutableList.copyOf(builder.closeListener)
-        clickBottomListeners = ImmutableList.copyOf(builder.clickBottomListener)
-    }
+class InvFrame(builder: FrameBuilder) : InvWindow(builder.line, builder.title) {
+    private val onClickBottom = builder.onClickBottom
+    private val _rootPanel = builder.build(this.inventory, null)
+    val rootPanel: InvPanel
+        get() = _rootPanel
 
     override fun onOpen(event: InventoryOpenEvent) {
-        openListeners.forEach { it.runCatching { it(event) } }
+        _rootPanel.onOpen(event)
     }
 
     override fun onClose(event: InventoryCloseEvent) {
-        closeListeners.forEach { it.runCatching { it(event) } }
+        _rootPanel.onClose(event)
     }
 
     override fun onClickOutside(event: InventoryClickEvent) {
@@ -218,13 +165,13 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
         val slot = event.slot
         val x = slot % 9
         val y = slot / 9
-        rootPanel.onClick(x, y, event)
+        _rootPanel.onClick(x, y, event)
     }
 
     override fun onClickBottom(event: InventoryClickEvent) {
         event.isCancelled = true
 
-        clickBottomListeners.forEach { it.runCatching { it(event) } }
+        runCatching { onClickBottom(this, event.whoClicked.inventory, event) }
     }
 
     override fun onDrag(event: InventoryDragEvent) {
@@ -240,25 +187,152 @@ class InvFrame(builder: InvFrameBuilder) : InvWindow(builder.height, builder.tit
     }
 }
 
-interface InvPanel {
-    val minX: Int
-    val minY: Int
-    val maxX: Int
-    val maxY: Int
-    val panels: List<InvPanel>
-    val buttons: List<InvButton>
+internal open class InvPanelImpl(
+    builder: PanelBuilder,
+    protected val inventory: Inventory,
+    override val parent: InvPanel?
+) : InvPanel {
+    final override val minX: Int = builder.x
+    final override val minY: Int = builder.y
+    final override val maxX: Int = minX + builder.width - 1
+    final override val maxY: Int = minY + builder.height - 1
 
-    fun panelAt(x: Int, y: Int): InvPanel?
+    private val onOpen = builder.onOpen
+    private val onClose = builder.onClose
+    private val onClick = builder.onClick
 
-    fun buttonAt(x: Int, y: Int): InvButton?
+    final override val panels: List<InvPanelImpl>
+    final override val buttons: List<InvButtonImpl>
 
-    fun getItem(x: Int, y: Int): ItemStack?
+    override val indexOffset: Int
+        get() {
+            var offset = minX + minY * 9
+            parent?.let { offset += it.indexOffset }
 
-    fun setItem(x: Int, y: Int, item: ItemStack?)
+            return offset
+        }
+
+    init {
+        panels = ImmutableList.copyOf(builder.panels.map { it.build(inventory, this) })
+        buttons = ImmutableList.copyOf(builder.buttons.map { it.build(this) })
+
+        runCatching { builder.onInit(this) }
+    }
+
+    override fun panelAt(x: Int, y: Int): InvPanelImpl? {
+        return panels.find { it.minX <= x && it.maxX >= x && it.minY <= y && it.maxY >= y }
+    }
+
+    override fun buttonAt(x: Int, y: Int): InvButtonImpl? {
+        return buttons.find { it.x == x && it.y == y }
+    }
+
+    override fun getItem(x: Int, y: Int): ItemStack? {
+        return inventory.getItem(toIndex(x, y))
+    }
+
+    override fun setItem(x: Int, y: Int, item: ItemStack?) {
+        inventory.setItem(toIndex(x, y), item)
+    }
+
+    override fun toIndex(x: Int, y: Int): Int {
+        require(x >= 0 && y >= 0 && x <= maxX - minX && y <= maxY - minY) { "Out of range" }
+
+        return indexOffset + x + y * 9
+    }
+
+    open fun onOpen(event: InventoryOpenEvent) {
+        runCatching { onOpen(this, event) }
+
+        panels.forEach {
+            runCatching { it.onOpen(event) }
+        }
+    }
+
+    open fun onClose(event: InventoryCloseEvent) {
+        runCatching { onClose(this, event) }
+
+        panels.forEach {
+            runCatching { it.onClose(event) }
+        }
+    }
+
+    open fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
+        runCatching { onClick(this, x, y, event) }
+        buttonAt(x, y)?.let { it.onClick(this, event) }
+        panelAt(x, y)?.let { it.onClick(x - it.minX, y - it.minY, event) }
+    }
 }
 
-interface InvButton {
-    val x: Int
-    val y: Int
-    var item: ItemStack?
+internal class InvListViewImpl<T>(
+    builder: ListViewBuilder<T>,
+    listBuilder: ListBuilder<T>,
+    inventory: Inventory,
+    parent: InvPanel?
+) : InvPanelImpl(
+    builder,
+    inventory,
+    parent
+), InvListView {
+    override val listX: Int = listBuilder.x
+    override val listY: Int = listBuilder.y
+    override val listWidth: Int = listBuilder.width
+    override val listHeight: Int = listBuilder.height
+    private val list: () -> List<T> = listBuilder.list
+    private val transform: T.() -> ItemStack = listBuilder.transform
+    override var page: Int = 0
+        set(value) {
+            field = updatePage(value)
+        }
+
+    private val onClickItem: (T, InventoryClickEvent) -> Unit = listBuilder.onClickItem
+    private val slots = arrayOfNulls<Any>(listSize)
+
+    private fun updatePage(page: Int): Int {
+        slots.fill(null)
+
+        val list = list()
+        val updatePage = page.coerceIn(0, list.count() / listSize)
+        val offset = updatePage * listSize
+
+        for (i in 0 until listSize) {
+            val index = i + offset
+            val item = list.elementAtOrNull(index)
+            slots[i] = item
+            val x = index % listWidth
+            val y = index / listWidth
+            inventory.setItem(toIndex(x + listX, y + listY), item?.transform())
+        }
+
+        return updatePage
+    }
+
+    override fun onOpen(event: InventoryOpenEvent) {
+        super.onOpen(event)
+        first()
+    }
+
+    override fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
+        super.onClick(x, y, event)
+
+        val index = (x - listX + y * listWidth)
+        list().elementAtOrNull(index)?.runCatching {
+            onClickItem(this, event)
+        }
+    }
+}
+
+internal class InvButtonImpl(override val parent: InvPanel, builder: ButtonBuilder) : InvButton {
+    override val x: Int = builder.x
+    override val y: Int = builder.y
+
+    private val onClick = builder.onClick
+
+    init {
+        runCatching { builder.onInit(this) }
+    }
+
+    fun onClick(pnl: InvPanelImpl, event: InventoryClickEvent) {
+        runCatching { onClick(pnl, this, event) }
+    }
 }

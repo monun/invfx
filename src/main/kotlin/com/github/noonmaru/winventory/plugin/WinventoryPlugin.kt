@@ -1,9 +1,13 @@
 package com.github.noonmaru.winventory.plugin
 
-import com.github.noonmaru.winventory.InventoryListener
-import com.github.noonmaru.winventory.window
+import com.github.noonmaru.winventory.*
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -22,33 +26,47 @@ class WinventoryPlugin : JavaPlugin() {
         }
     }
 
-    //debug codes
-//    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-//        sender as Player
-//
-//        sender.openWindow(frame(5, "test") {
-//            onInitPanel { sender.sendMessage("INIT") }
-//            onOpen { sender.sendMessage("OPEN") }
-//            onClose { sender.sendMessage("CLOSE") }
-//            onClickBottom { sender.sendMessage("CLICK BOTTOM") }
-//
-//            var button: InvButton? = null
-//
-//            panel(0, 0, 3, 3) {
-//                onInitPanel { sender.sendMessage("INIT PANEL") }
-//                onClickPanel { sender.sendMessage("CLICK PANEL") }
-//                button(1, 1, ItemStack(Material.STICK)) {
-//                    onInitButton {
-//                        button = it
-//                    }
-//
-//                    onClickPanel {
-//                        if (it != button)
-//                            button?.item = ItemStack(Material.values().random())
-//                    }
-//                }
-//            }
-//        })
-//        return true
-//    }
+    //    debug codes
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+        sender as Player
+
+        val list = mutableListOf<String>()
+
+        for (i in 1..100) {
+            list += i.toString()
+        }
+
+        val window = frame(6, "TEST") {
+            addListView<String>(0, 0, 9, 6) {
+                setList(1, 0, 3, 3, { list }, {
+                    ItemStack(Material.STICK).apply {
+                        itemMeta = itemMeta.apply { setDisplayName(it) }
+                    }
+                }) {
+                    onClickItem = { item, _ ->
+                        println("CLICK ITEM $item")
+                    }
+                }
+
+                addButton(0, 0) {
+                    onClick = { invPanel, _, _ ->
+                        invPanel as InvListView
+                        invPanel.page++
+                        println("PAGE UP")
+                    }
+                }
+                addButton(0, 1) {
+                    onClick = { invPanel, invButton, inventoryClickEvent ->
+                        println("PAGE DOWN")
+                        invPanel as InvListView
+                        invPanel.page--
+                    }
+                }
+            }
+        }
+
+        sender.openWindow(window)
+
+        return true
+    }
 }

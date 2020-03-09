@@ -45,6 +45,8 @@ internal val Inventory.window: InvWindow?
             if (it is InvWindow.Holder) return it.window
         }
         return null
+
+
     }
 
 fun Player.openWindow(window: InvWindow): Boolean {
