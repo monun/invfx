@@ -1,4 +1,4 @@
-package com.github.noonmaru.winventory
+package com.github.noonmaru.invfx
 
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

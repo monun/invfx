@@ -1,1 +1,1 @@
-rootProject.name = "winventory"
+rootProject.name = "inv-fx"
