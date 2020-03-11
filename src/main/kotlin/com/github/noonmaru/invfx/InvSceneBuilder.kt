@@ -1,3 +1,21 @@
+/*
+ *
+ *  * Copyright (c) 2020 Noonmaru
+ *  *
+ *  * Licensed under the General Public License, Version 3.0 (the "License");
+ *  *  you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * https://opensource.org/licenses/gpl-3.0
+ *  *
+ *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  See the License for the specific language governing permissions and
+ *  *  limitations under the License.
+ *
+ */
+
 package com.github.noonmaru.invfx
 
 import org.bukkit.Material
@@ -101,12 +119,12 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
         require(x in 0..8) { "X must be between 0 and 8 ($x)" }
         require(y in 0..5) { "Y must be between 0 and 5 ($y)" }
         require(width in 1..9) { "Width must be between 1 and 9 ($width)" }
-        require(height in 1..6) { "Height must be between 1 and 6 ($height)" }
+        require(height in 1..line) { "Height must be between 1 and $line ($height)" }
 
         val maxX = x + width - 1
         val maxY = y + height - 1
 
-        require(maxX in x until 9 && maxY in y until 6) { "Out of range args(x=$x, y=$y, width=$width, height=$height)" }
+        require(maxX in x until 9 && maxY in y until line) { "Out of range args(x=$x, y=$y, width=$width, height=$height)" }
         regions.find { it.instance.overlaps(x, y, maxX, maxY) }?.let {
             throw IllegalArgumentException("Overlaps with other region  args=[$x, $y - $maxX, $maxY] overlaps=${it.instance.regionString}")
         }
