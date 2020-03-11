@@ -29,6 +29,9 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
+/**
+ * 윈도우화된 인벤토리의 최상위 인터페이스입니다.
+ */
 interface InvWindow : InventoryHolder {
     fun onOpen(event: InventoryOpenEvent)
     fun onClose(event: InventoryCloseEvent)

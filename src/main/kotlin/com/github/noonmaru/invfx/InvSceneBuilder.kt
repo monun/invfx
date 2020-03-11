@@ -24,6 +24,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.inventory.ItemStack
 
+/**
+ * [InvRegion]를 사전설정 할 수 있는 클래스
+ */
 abstract class InvRegionBuilder internal constructor() {
 
     internal abstract val instance: InvRegionImpl
@@ -31,15 +34,28 @@ abstract class InvRegionBuilder internal constructor() {
     internal abstract fun build(): InvRegionImpl
 }
 
+/**
+ * [InvPane]을 사전설정 할 수 있는 클래스
+ */
 class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, width: Int, height: Int) :
     InvRegionBuilder() {
     internal val buttonBuilders = ArrayList<InvButtonBuilder>(0)
 
+    /**
+     * [InvPane]을 초기화할 때 호출
+     */
     var onInit: InvPane.() -> Unit = { }
+
+    /**
+     * [org.bukkit.entity.Player]가 구역 내의 슬롯을 클릭할 때 호출됩니다.
+     */
     var onClick: (pane: InvPane, x: Int, y: Int, event: InventoryClickEvent) -> Unit = { _, _, _, _ -> }
 
     override val instance: InvPaneImpl = InvPaneImpl(scene, x, y, width, height)
 
+    /**
+     * [InvButton]을 추가합니다.
+     */
     fun addButton(x: Int, y: Int, init: (InvButtonBuilder.() -> Unit)? = null): InvButton {
         instance.let {
             require(x in 0 until it.width && y in 0 until it.height) { "Out of range  args=(x=$x y=$y) region=${it.regionString})" }
@@ -58,9 +74,23 @@ class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, w
     }
 }
 
+/**
+ * [InvButton]을 사전설정할 수 있는 클래스
+ */
 class InvButtonBuilder internal constructor(pane: InvPaneImpl, x: Int, y: Int) {
+    /**
+     * [InvButton] 슬롯에 초기화될 아이템
+     */
     var item: ItemStack? = null
+
+    /**
+     * [InvButton]이 초기화될 때 호출
+     */
     var onInit: InvButton.() -> Unit = { }
+
+    /**
+     * [org.bukkit.entity.Player]가 클릭할 때 호출
+     */
     var onClick: (button: InvButton, event: InventoryClickEvent) -> Unit = { _, _ -> }
 
     internal val instance: InvButtonImpl = InvButtonImpl(pane, x, y)
@@ -72,6 +102,9 @@ class InvButtonBuilder internal constructor(pane: InvPaneImpl, x: Int, y: Int) {
     }
 }
 
+/**
+ * [InvListView]를 사전설정 할 수 있는 클래스
+ */
 class InvListViewBuilder<T> internal constructor(
     scene: InvSceneImpl,
     x: Int,
@@ -80,10 +113,25 @@ class InvListViewBuilder<T> internal constructor(
     height: Int,
     internal val list: List<T>
 ) : InvRegionBuilder() {
+    /**
+     * [InvListView]가 초기화 될 때 호출
+     */
     var onInit: InvListView<T>.() -> Unit = { }
+
+    /**
+     * [InvListView]의 페이지가 업데이트될 때 호출
+     */
     var onUpdatePage: (listView: InvListView<T>, page: Int, displayList: List<T>) -> Unit = { _, _, _ -> }
+
+    /**
+     * [InvListView]의 아이템을 클릭할때 호출
+     */
     var onClickItem: (listView: InvListView<T>, x: Int, y: Int, clicked: T, event: InventoryClickEvent) -> Unit =
         { _, _, _, _, _ -> }
+
+    /**
+     * 아이템을 표시할 [ItemStack]으로 변환
+     */
     val transform: T.() -> ItemStack = {
         if (this is ItemStack) this
         else {
@@ -105,12 +153,30 @@ class InvListViewBuilder<T> internal constructor(
     }
 }
 
+/**
+ * [InvScene]를 사전설정할 수 있는 클래스
+ */
 class InvSceneBuilder internal constructor(private val line: Int, title: String) {
     internal val regions = ArrayList<InvRegionBuilder>(0)
 
+    /**
+     * [InvScene]이 초기화될 때 호출
+     */
     var onInit: InvScene.() -> Unit = { }
+
+    /**
+     * [org.bukkit.entity.Player]가 [InvScene]을 열때 호출
+     */
     var onOpen: (scene: InvScene, event: InventoryOpenEvent) -> Unit = { _, _ -> }
+
+    /**
+     * [org.bukkit.entity.Player]가 [InvScene]을 닫을때 호출
+     */
     var onClose: (scene: InvScene, event: InventoryCloseEvent) -> Unit = { _, _ -> }
+
+    /**
+     * [org.bukkit.entity.Player]가 자신의 인벤토리를 클릭했을때 호출
+     */
     var onClickBottom: (scene: InvScene, event: InventoryClickEvent) -> Unit = { _, _ -> }
 
     private val instance: InvSceneImpl = InvSceneImpl(line, title)
@@ -130,6 +196,9 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
         }
     }
 
+    /**
+     * [InvScene]에 [InvPane]을 추가하기 위한 [InvPaneBuilder]를 생성합니다.
+     */
     fun addPanel(
         x: Int,
         y: Int,
@@ -145,6 +214,9 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
         }.instance
     }
 
+    /**
+     * [InvScene]에 [InvListView]를 추가하기 위한 [InvListViewBuilder]를 생성합니다.
+     */
     fun <T> addListView(
         x: Int,
         y: Int,
@@ -173,6 +245,9 @@ private val InvRegionImpl.regionString: String
         return "[$minX, $minY - $maxX, $maxY]"
     }
 
+/**
+ * [InvScene]을 생성하기 위한 [InvSceneBuilder]를 생성합니다.
+ */
 fun invScene(line: Int, title: String, init: InvSceneBuilder.() -> Unit): InvScene {
     return InvSceneBuilder(line, title).apply(init).build()
 }

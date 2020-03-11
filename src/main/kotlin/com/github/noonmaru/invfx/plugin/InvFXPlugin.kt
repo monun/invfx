@@ -33,7 +33,7 @@ class InvFXPlugin : JavaPlugin() {
 
     override fun onDisable() {
         Bukkit.getOnlinePlayers().forEach { player ->
-            player.openInventory.topInventory.window?.run { player.closeInventory(InventoryCloseEvent.Reason.PLUGIN) }
+            player.openInventory.topInventory.window?.run { player.closeInventory(InventoryCloseEvent.Reason.PLUGIN) } //InvWindow 닫기
         }
     }
 }
