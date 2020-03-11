@@ -1,6 +1,9 @@
 package com.github.noonmaru.invfx.plugin
 
-import com.github.noonmaru.invfx.*
+import com.github.noonmaru.invfx.InventoryListener
+import com.github.noonmaru.invfx.invScene
+import com.github.noonmaru.invfx.openWindow
+import com.github.noonmaru.invfx.window
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.command.Command
@@ -30,57 +33,51 @@ class InvFXPlugin : JavaPlugin() {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         sender as Player
 
-        val list = mutableListOf<Int>()
 
-        for (i in 0..100) {
-            list += i
-        }
 
         val scene = invScene(6, "Test") {
-            addPanel(0, 0, 3, 3) {
-                onInit = {
-                    println("Panel INIT")
-                }
-                onClick = { _, x, y, _ ->
-                    println("Panel CLICK $x $y")
-                }
-                addButton(1, 1) {
-                    onInit = {
-                        item = ItemStack(Material.STONE)
-                        println("Button INIT")
-                    }
-                    onClick = { _, _ ->
-                        println("Button CLICK")
-                    }
-                }
+            val list = mutableListOf<Int>()
+
+            for (i in 0..100) {
+                list += i
             }
 
-            var listView: InvListView? = null
-
-            addListView(3, 0, 3, 3, list) {
+            val listView = addListView(0, 0, 9, 5, list) {
                 onInit = {
                     println("ListView INIT")
-                    listView = this
                 }
-                onClickItem = { _, x, y, clicked, _ ->
+                onUpdatePage = { listView, page, displayList ->
+                    println("ListView UPDATE PAGE $page ${displayList.joinToString()}")
+                }
+                onClickItem = { listView, x, y, clicked, event ->
                     println("ListView CLICK $x $y $clicked")
                 }
             }
-            addPanel(6, 0, 3, 3) {
-                addButton(0, 0) {
+            addPanel(0, 5, 9, 1) {
+                onInit = {
+                    println("Panel INIT")
+                }
+                onClick = { pane, x, y, event ->
+                    println("Panel CLICK")
+                }
+                addButton(3, 0) {
+                    item = ItemStack(Material.STONE)
                     onInit = {
-                        item = ItemStack(Material.STICK)
+                        println("Button(PREV) INIT")
                     }
-                    onClick = { _, _ ->
-                        listView!!.next()
+                    onClick = { button, event ->
+                        println("Button(PREV) CLICK")
+                        listView.previous()
                     }
                 }
-                addButton(1, 0) {
+                addButton(5, 0) {
+                    item = ItemStack(Material.GRASS_BLOCK)
                     onInit = {
-                        item = ItemStack(Material.STICK)
+                        println("Button(NEXT) INIT")
                     }
-                    onClick = { _, _ ->
-                        listView!!.previous()
+                    onClick = { button, event ->
+                        println("Button(NEXT) CLICK")
+                        listView.next()
                     }
                 }
             }

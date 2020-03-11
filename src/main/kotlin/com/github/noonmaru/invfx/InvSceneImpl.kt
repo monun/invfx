@@ -7,32 +7,32 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.inventory.ItemStack
 
 internal abstract class InvNodeImpl(final override val x: Int, final override val y: Int) : InvNode
 
 internal abstract class InvRegionImpl(
-    override val scene: InvScene,
-    builder: InvRegionBuilder
-) : InvNodeImpl(builder.x, builder.y), InvRegion {
-    override val width: Int = builder.width
-    override val height: Int = builder.height
-
+    override val scene: InvSceneImpl,
+    x: Int,
+    y: Int,
+    override val width: Int, override val height: Int
+) : InvNodeImpl(x, y), InvRegion {
     abstract fun onClick(x: Int, y: Int, event: InventoryClickEvent)
+
     open fun onOpen(event: InventoryOpenEvent) {}
 }
 
-internal class InvPaneImpl(
-    scene: InvScene,
-    builder: InvPaneBuilder
-) : InvRegionImpl(
-    scene,
-    builder
-), InvPane {
-    override val buttons: List<InvButtonImpl> = ImmutableList.copyOf(builder.buttons.map { it.build(this) })
+internal class InvPaneImpl(scene: InvSceneImpl, x: Int, y: Int, width: Int, height: Int) :
+    InvRegionImpl(scene, x, y, width, height), InvPane {
+    override lateinit var buttons: List<InvButtonImpl>
+        private set
 
-    private val onClick = builder.onClick
+    private lateinit var onClick: (InvPane, Int, Int, InventoryClickEvent) -> Unit
 
-    init {
+    fun initialize(builder: InvPaneBuilder) {
+        this.onClick = builder.onClick
+        this.buttons = ImmutableList.copyOf(builder.buttonBuilders.map { it.build() })
+
         builder.runCatching { onInit() }
     }
 
@@ -47,25 +47,47 @@ internal class InvPaneImpl(
     }
 }
 
-internal class InvListViewImpl<T>(scene: InvScene, builder: InvListViewBuilder<T>) :
-    InvRegionImpl(
-        scene,
-        builder
-    ), InvListView {
+internal class InvButtonImpl(
+    override val pane: InvPaneImpl,
+    x: Int, y: Int
+) : InvNodeImpl(x, y), InvButton {
+    internal lateinit var onClick: (button: InvButton, event: InventoryClickEvent) -> Unit
+        private set
+
+    fun initialize(builder: InvButtonBuilder) {
+        builder.item?.let { this.item = it }
+        this.onClick = builder.onClick
+
+        builder.runCatching { onInit() }
+    }
+}
+
+internal class InvListViewImpl<T>(
+    scene: InvSceneImpl,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int
+) : InvRegionImpl(scene, x, y, width, height), InvListView<T> {
     override var page: Int = 0
         set(value) {
             field = updatePage(value)
         }
+    override lateinit var list: List<T>
+    override val displayList = ArrayList<T>(size)
+    private lateinit var transform: T.() -> ItemStack
 
-    override val list: List<T> = builder.list
-    override val displayList = ArrayList<T>(0)
+    private lateinit var onUpdatePage: (InvListView<T>, Int, List<T>) -> Unit
+    private lateinit var onClickItem: (listView: InvListView<T>, x: Int, y: Int, clicked: T, event: InventoryClickEvent) -> Unit
 
-    private val onClickItem = builder.onClickItem
-    private val transform = builder.transform
+    fun initialize(builder: InvListViewBuilder<T>) {
+        this.list = builder.list
+        this.transform = builder.transform
+        this.onUpdatePage = builder.onUpdatePage
+        this.onClickItem = builder.onClickItem
 
-    init {
-        refresh()
         builder.runCatching { onInit() }
+        refresh()
     }
 
     override fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
@@ -93,30 +115,26 @@ internal class InvListViewImpl<T>(scene: InvScene, builder: InvListViewBuilder<T
 
             setItem(x, y, item?.transform())
         }
+
+        runCatching { onUpdatePage(this, page, displayList) }
+
         return update
     }
 }
 
-internal class InvButtonImpl(
-    override val pane: InvPane,
-    builder: InvButtonBuilder
-) : InvNodeImpl(builder.x, builder.y),
-    InvButton {
-    internal val onClick = builder.onClick
+internal class InvSceneImpl(line: Int, title: String) : InvStage(line, title), InvScene {
+    private lateinit var onOpen: (scene: InvScene, event: InventoryOpenEvent) -> Unit
+    private lateinit var onClose: (scene: InvScene, event: InventoryCloseEvent) -> Unit
+    private lateinit var onClickBottom: (scene: InvScene, event: InventoryClickEvent) -> Unit
 
-    init {
-        runCatching { builder.onInit(this) }
-    }
-}
+    override lateinit var regions: List<InvRegionImpl>
 
-internal class InvSceneImpl(builder: InvSceneBuilder) : InvStage(builder.line, builder.title), InvScene {
-    private val onOpen = builder.onOpen
-    private val onClose = builder.onClose
-    private val onClickBottom = builder.onClickBottom
+    fun initialize(builder: InvSceneBuilder) {
+        onOpen = builder.onOpen
+        onClose = builder.onClose
+        onClickBottom = builder.onClickBottom
+        regions = builder.regions.map { it.build() }
 
-    override val regions: List<InvRegionImpl> = builder.regions.map { it.build(this) }
-
-    init {
         builder.runCatching { onInit() }
     }
 
@@ -133,6 +151,10 @@ internal class InvSceneImpl(builder: InvSceneBuilder) : InvStage(builder.line, b
         event.isCancelled = true
     }
 
+    override fun regionAt(x: Int, y: Int): InvRegionImpl? {
+        return regions.find { it.contains(x, y) }
+    }
+
     override fun onClickTop(event: InventoryClickEvent) {
         event.isCancelled = true
 
@@ -140,7 +162,7 @@ internal class InvSceneImpl(builder: InvSceneBuilder) : InvStage(builder.line, b
         val x = slot % 9
         val y = slot / 9
 
-        regions.find { it.contains(x, y) }?.let { region ->
+        regionAt(x, y)?.let { region ->
             region.onClick(x - region.x, y - region.y, event)
         }
     }

@@ -22,6 +22,10 @@ interface InvRegion : InvNode {
     val size: Int
         get() = width * height
 
+    fun overlaps(minX: Int, minY: Int, maxX: Int, maxY: Int): Boolean {
+        return this.minX <= maxX && this.maxX >= minX && this.minY <= maxY && this.maxY >= minY
+    }
+
     fun contains(x: Int, y: Int): Boolean {
         return x in minX..maxX && y in minY..maxY
     }
@@ -31,9 +35,9 @@ interface InvRegion : InvNode {
     }
 
     fun toInvIndex(x: Int, y: Int): Int {
-        require(x >= 0 && y >= 0 && x < width && y < width) { "Out of range" }
+        require(x in 0 until width && y in 0 until height) { "Out of range" }
 
-        return minX + x + y * 9
+        return x + y * 9 + minX + minY * 9
     }
 }
 
@@ -54,10 +58,10 @@ interface InvButton : InvNode {
         set(value) = pane.setItem(x, y, value)
 }
 
-interface InvListView : InvRegion {
-    val list: List<*>
+interface InvListView<T> : InvRegion {
+    val list: List<T>
     var page: Int
-    val displayList: List<*>
+    val displayList: List<T>
 
     fun refresh() {
         page = page
@@ -83,7 +87,5 @@ interface InvListView : InvRegion {
 interface InvScene : InvWindow {
     val regions: List<InvRegion>
 
-    fun regionAt(x: Int, y: Int): InvRegion? {
-        return regions.find { it.contains(x, y) }
-    }
+    fun regionAt(x: Int, y: Int): InvRegion?
 }
