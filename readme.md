@@ -22,6 +22,7 @@
 >    	implementation 'com.github.noonmaru:inv-fx:1.0'
 >    }
 >```
+>---
  ### Example code
 ```kotlin
 val scene = invScene(6, "Example") {
