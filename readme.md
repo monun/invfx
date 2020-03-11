@@ -2,7 +2,7 @@
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
 > ---
-> ###Features
+> ### Features
 > * InvWindow
 > * InvScene
 >     * Pane (Button)
