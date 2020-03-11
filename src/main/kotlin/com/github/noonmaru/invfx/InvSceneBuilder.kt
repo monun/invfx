@@ -117,7 +117,7 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
 
     private fun checkRegion(x: Int, y: Int, width: Int, height: Int) {
         require(x in 0..8) { "X must be between 0 and 8 ($x)" }
-        require(y in 0..5) { "Y must be between 0 and 5 ($y)" }
+        require(y in 0 until line) { "Y must be between 0 and 5 ($y)" }
         require(width in 1..9) { "Width must be between 1 and 9 ($width)" }
         require(height in 1..line) { "Height must be between 1 and $line ($height)" }
 
