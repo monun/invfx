@@ -24,7 +24,7 @@ class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, w
 
     fun addButton(x: Int, y: Int, init: (InvButtonBuilder.() -> Unit)? = null): InvButton {
         instance.let {
-            require(x in 0 until it.width && y in 0 until it.height) { "Out of range" }
+            require(x in 0 until it.width && y in 0 until it.height) { "Out of range  args=(x=$x y=$y) region=${it.regionString})" }
         }
 
         return InvButtonBuilder(instance, x, y).apply {
@@ -98,13 +98,18 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
     private val instance: InvSceneImpl = InvSceneImpl(line, title)
 
     private fun checkRegion(x: Int, y: Int, width: Int, height: Int) {
-        require(width > 0 && height > 0) { "Zero or negative size width=$width height=$height" }
+        require(x in 0..8) { "X must be between 0 and 8 ($x)" }
+        require(y in 0..5) { "Y must be between 0 and 5 ($y)" }
+        require(width in 1..9) { "Width must be between 1 and 9 ($width)" }
+        require(height in 1..6) { "Height must be between 1 and 6 ($height)" }
 
         val maxX = x + width - 1
         val maxY = y + height - 1
-        println(0 until line)
-        require(x in 0..8 && y in 0 until line) { "Out of range x=$x y=$y" }
-        require(regions.find { it.instance.overlaps(x, y, maxX, maxY) } == null) { "Overlaps with other region" }
+
+        require(maxX in x until 9 && maxY in y until 6) { "Out of range args(x=$x, y=$y, width=$width, height=$height)" }
+        regions.find { it.instance.overlaps(x, y, maxX, maxY) }?.let {
+            throw IllegalArgumentException("Overlaps with other region  args=[$x, $y - $maxX, $maxY] overlaps=${it.instance.regionString}")
+        }
     }
 
     fun addPanel(
@@ -144,6 +149,11 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
         }
     }
 }
+
+private val InvRegionImpl.regionString: String
+    get() {
+        return "[$minX, $minY - $maxX, $maxY]"
+    }
 
 fun invScene(line: Int, title: String, init: InvSceneBuilder.() -> Unit): InvScene {
     return InvSceneBuilder(line, title).apply(init).build()

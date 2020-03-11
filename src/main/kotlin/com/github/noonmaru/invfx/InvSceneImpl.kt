@@ -120,7 +120,7 @@ internal class InvListViewImpl<T>(
             setItem(x, y, item?.transform())
         }
 
-        runCatching { onUpdatePage(this, page, displayList) }
+        runCatching { onUpdatePage(this, update, displayList) }
 
         return update
     }
