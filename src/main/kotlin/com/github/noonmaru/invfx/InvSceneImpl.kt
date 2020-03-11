@@ -102,7 +102,11 @@ internal class InvListViewImpl<T>(
         val update = page.coerceIn(0, maxPage)
         val offset = update * size
 
-        displayList.clear()
+        val list = this.list
+        val displayList = this.displayList.apply {
+            clear()
+        }
+        val transform = this.transform
 
         for (i in 0 until size) {
             val item = list.elementAtOrNull(offset + i)
