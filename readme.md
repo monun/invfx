@@ -1,4 +1,4 @@
-#InvFX
+# InvFX
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
 > ---
@@ -22,7 +22,7 @@
 >    	implementation 'com.github.noonmaru:inv-fx:1.0'
 >    }
 >```
- ###Example code
+ ### Example code
 ```kotlin
 val scene = invScene(6, "Example") {
     val listView = addListView(0, 0, 9, 5, list) {
