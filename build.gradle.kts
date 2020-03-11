@@ -8,16 +8,16 @@ version = properties["pluginVersion"]!!
 repositories {
     mavenCentral()
     maven(url = "https://papermc.io/repo/repository/maven-public/") //paper
-    maven(url = "https://repo.dmulloy2.net/nexus/repository/public/") //protocollib
-    maven(url = "https://jitpack.io/") //tap, psychic
+//    maven(url = "https://repo.dmulloy2.net/nexus/repository/public/") //protocollib
+//    maven(url = "https://jitpack.io/") //tap, psychic
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8")) //kotlin
     implementation("junit:junit:4.12") //junit
     implementation("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT") //paper
-    implementation("com.comphenix.protocol:ProtocolLib:4.5.0") //protocollib
-    implementation("com.github.noonmaru:tap:2.2") //tap
+//    implementation("com.comphenix.protocol:ProtocolLib:4.5.0") //protocollib
+//    implementation("com.github.noonmaru:tap:2.2") //tap
 }
 
 tasks {

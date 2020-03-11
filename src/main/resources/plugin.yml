@@ -3,5 +3,3 @@ main: $pluginMain
 depend: ['Kotlin']
 api-version: '1.13'
 version: $pluginVersion
-commands:
-  winventory:
