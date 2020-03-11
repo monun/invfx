@@ -59,4 +59,5 @@ val scene = invScene(6, "Example") {
         }
     }
 }
+player.openWindow(scene)
 ```
