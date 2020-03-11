@@ -1,4 +1,4 @@
-# InvFX [![Build Status](https://travis-ci.org/noonmaru/inv-fx.svg?branch=master)](https://travis-ci.org/noonmaru/inv-fx) ![GitHub](https://img.shields.io/github/license/noonmaru/inv-fx) ![JitPack](https://img.shields.io/jitpack/v/github/noonmaru/inv-fx) ![Twitch Status](https://img.shields.io/twitch/status/hptgrm)
+# InvFX [![Build Status](https://travis-ci.org/noonmaru/inv-fx.svg?branch=master)](https://travis-ci.org/noonmaru/inv-fx) ![JitPack](https://img.shields.io/jitpack/v/github/noonmaru/inv-fx) ![GitHub](https://img.shields.io/github/license/noonmaru/inv-fx) ![Twitch Status](https://img.shields.io/twitch/status/hptgrm)
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
 > ---
