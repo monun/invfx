@@ -24,9 +24,6 @@ import org.bukkit.Bukkit
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.plugin.java.JavaPlugin
 
-/**
- * @author Nemo
- */
 class InvFXPlugin : JavaPlugin() {
     override fun onEnable() {
         server.apply {
