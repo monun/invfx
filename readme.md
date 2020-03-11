@@ -8,7 +8,20 @@
 >     * Pane (Button)
 >    * ListView
 > ---
-
+> ### Gradle
+>```groovy
+>allprojects {
+>       repositories {
+>        ...
+>        maven { url 'https://jitpack.io' }
+>    }
+>}
+>```
+>```groovy
+>dependencies {
+>    	implementation 'com.github.noonmaru:inv-fx:1.0'
+>    }
+>```
  ###Example code
 ```kotlin
 val scene = invScene(6, "Example") {
@@ -33,13 +46,13 @@ val scene = invScene(6, "Example") {
             }
         }
         addButton(3, 0) {
-            item = ItemStack(Material.BLAZE_ROD)
+            item = ItemStack(Material.STONE)
             onClick = { button, event ->
                 listView.previous()
             }
         }
         addButton(5, 0) {
-            item = ItemStack(Material.BLAZE_ROD)
+            item = ItemStack(Material.GRASS_BLOCK)
             onClick = { button, event ->
                 listView.next()
             }
