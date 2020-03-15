@@ -132,7 +132,7 @@ class InvListViewBuilder<T> internal constructor(
     /**
      * 아이템을 표시할 [ItemStack]으로 변환
      */
-    val transform: T.() -> ItemStack = {
+    var transform: T.() -> ItemStack = {
         if (this is ItemStack) this
         else {
             val toString = toString()
