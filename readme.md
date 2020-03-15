@@ -19,7 +19,7 @@
 >```
 >```groovy
 >dependencies {
->    	implementation 'com.github.noonmaru:inv-fx:1.0'
+>    	implementation 'com.github.noonmaru:inv-fx:1.0.1'
 >    }
 >```
 >---
