@@ -41,7 +41,7 @@ tasks {
     }
 //    create<Copy>("distJar") {
 //        from(jar)
-//        into("W:\\Servers\\test\\plugins")
+//        into("W:\\Servers\\human-chess\\plugins")
 //    }
 }
 

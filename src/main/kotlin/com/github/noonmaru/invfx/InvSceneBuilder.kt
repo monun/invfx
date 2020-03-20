@@ -56,7 +56,7 @@ class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, w
     /**
      * [InvButton]을 추가합니다.
      */
-    fun addButton(x: Int, y: Int, init: (InvButtonBuilder.() -> Unit)? = null): InvButton {
+    fun button(x: Int, y: Int, init: (InvButtonBuilder.() -> Unit)? = null): InvButton {
         instance.let {
             require(x in 0 until it.width && y in 0 until it.height) { "Out of range  args=(x=$x y=$y) region=${it.regionString})" }
         }
