@@ -217,7 +217,7 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
     /**
      * [InvScene]에 [InvListView]를 추가하기 위한 [InvListViewBuilder]를 생성합니다.
      */
-    fun <T> addListView(
+    fun <T> listView(
         x: Int,
         y: Int,
         width: Int,
