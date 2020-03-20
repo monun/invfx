@@ -199,7 +199,7 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
     /**
      * [InvScene]에 [InvPane]을 추가하기 위한 [InvPaneBuilder]를 생성합니다.
      */
-    fun addPanel(
+    fun panel(
         x: Int,
         y: Int,
         width: Int,
