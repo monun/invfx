@@ -3,3 +3,6 @@ main: $pluginMain
 depend: ['Kotlin']
 api-version: '1.13'
 version: $version
+commands:
+  inv-fx:
+    permission: inv-fx.commands
