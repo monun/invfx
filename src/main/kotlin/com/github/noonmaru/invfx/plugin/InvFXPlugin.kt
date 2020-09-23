@@ -34,6 +34,7 @@ class InvFXPlugin : JavaPlugin() {
         server.apply {
             pluginManager.registerEvents(InventoryListener(), this@InvFXPlugin)
         }
+        setupCommands()
     }
 
     override fun onDisable() {
@@ -44,8 +45,8 @@ class InvFXPlugin : JavaPlugin() {
 
     private fun setupCommands() {
         kommand {
-            register("inv-fx") {
-                register("update") {
+            register("invfx") {
+                then("update") {
                     executes { update(it.sender) }
                 }
             }

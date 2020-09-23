@@ -4,5 +4,5 @@ depend: ['Kotlin']
 api-version: '1.13'
 version: $version
 commands:
-  inv-fx:
+  invfx:
     permission: inv-fx.commands
