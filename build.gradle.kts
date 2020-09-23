@@ -1,10 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.4.10"
     `maven-publish`
 }
-
-group = properties["pluginGroup"]!!
-version = properties["pluginVersion"]!!
 
 repositories {
     mavenCentral()
@@ -39,10 +36,6 @@ tasks {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
     }
-//    create<Copy>("distJar") {
-//        from(jar)
-//        into("W:\\Servers\\human-chess\\plugins")
-//    }
 }
 
 publishing {
