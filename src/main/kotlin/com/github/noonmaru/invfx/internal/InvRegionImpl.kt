@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx
+package com.github.noonmaru.invfx.internal
 
-/**
- * [InvPane]과 [InvListView]로 구성 가능한 [InvWindow]클래스
- */
-interface InvScene : InvWindow {
-    /**
-     * 등록된 [InvRegion] 목록
-     */
-    val regions: List<InvRegion>
+import com.github.noonmaru.invfx.InvRegion
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 
-    /**
-     * 좌표에 등록된 [InvRegion]을 반환합니다.
-     */
-    fun regionAt(x: Int, y: Int): InvRegion?
+internal abstract class InvRegionImpl(
+    override val scene: InvSceneImpl,
+    x: Int,
+    y: Int,
+    override val width: Int, override val height: Int
+) : InvNodeImpl(x, y), InvRegion {
+    abstract fun onClick(x: Int, y: Int, event: InventoryClickEvent)
+
+    open fun onOpen(event: InventoryOpenEvent) {}
 }

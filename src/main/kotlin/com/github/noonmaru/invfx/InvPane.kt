@@ -17,16 +17,16 @@
 package com.github.noonmaru.invfx
 
 /**
- * [InvPane]과 [InvListView]로 구성 가능한 [InvWindow]클래스
+ * [InvButton]추가가 가능한 [InvScene]의 구성요소
  */
-interface InvScene : InvWindow {
+interface InvPane : InvRegion {
     /**
-     * 등록된 [InvRegion] 목록
+     * 등록된 버튼목록입니다.
      */
-    val regions: List<InvRegion>
+    val buttons: List<InvButton>
 
     /**
-     * 좌표에 등록된 [InvRegion]을 반환합니다.
+     * 좌표에 등록된 버튼을 가져옵니다.
      */
-    fun regionAt(x: Int, y: Int): InvRegion?
+    fun buttonAt(x: Int, y: Int): InvButton?
 }

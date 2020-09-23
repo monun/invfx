@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx
+package com.github.noonmaru.invfx.builder
+
+import com.github.noonmaru.invfx.internal.InvRegionImpl
 
 /**
- * [InvPane]과 [InvListView]로 구성 가능한 [InvWindow]클래스
+ * [InvRegion]를 사전설정 할 수 있는 클래스
  */
-interface InvScene : InvWindow {
-    /**
-     * 등록된 [InvRegion] 목록
-     */
-    val regions: List<InvRegion>
+abstract class InvRegionBuilder internal constructor() {
 
-    /**
-     * 좌표에 등록된 [InvRegion]을 반환합니다.
-     */
-    fun regionAt(x: Int, y: Int): InvRegion?
+    internal abstract val instance: InvRegionImpl
+
+    internal abstract fun build(): InvRegionImpl
 }

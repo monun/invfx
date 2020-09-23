@@ -16,7 +16,6 @@
 
 package com.github.noonmaru.invfx.plugin
 
-import com.github.noonmaru.invfx.InventoryListener
 import com.github.noonmaru.invfx.window
 import com.github.noonmaru.kommand.kommand
 import com.github.noonmaru.tap.util.GitHubSupport
@@ -32,7 +31,7 @@ import java.io.File
 class InvFXPlugin : JavaPlugin() {
     override fun onEnable() {
         server.apply {
-            pluginManager.registerEvents(InventoryListener(), this@InvFXPlugin)
+            pluginManager.registerEvents(InvListener(), this@InvFXPlugin)
         }
         setupCommands()
     }
@@ -49,6 +48,18 @@ class InvFXPlugin : JavaPlugin() {
                 then("update") {
                     executes { update(it.sender) }
                 }
+//                then("test") {
+//                    then("trim" to bool(), "page" to bool()) {
+//                        require { this is Player }
+//                        executes { context ->
+//                            val trim = context.parseArgument<Boolean>("trim")
+//                            val page = context.parseArgument<Boolean>("page")
+//                            val player = context.sender as Player
+//                            player.openWindow(createTestInv(trim, page))
+//
+//                        }
+//                    }
+//                }
             }
         }
     }
@@ -78,4 +89,35 @@ class InvFXPlugin : JavaPlugin() {
             GitHubSupport.downloadUpdate(updateFile, "noonmaru", "inv-fx", description.version, callback)
         }
     }
+
+//    private fun createTestInv(trim: Boolean, byPage: Boolean) = InvFX.scene(4, "test") {
+//        panel(0, 0, 9, 4) {
+//            listView(0, 0, 3, 3, trim, "ABCDEFGHIJK".map { it.toString() }) {
+//                transform = {
+//                    ItemStack(Material.BOOK).also {
+//                        it.itemMeta = it.itemMeta.also { meta ->
+//                            meta.setDisplayName(this)
+//                        }
+//                    }
+//                }
+//                onClickItem = { listView, x, y, clicked, event ->
+//                    event.whoClicked.sendMessage("x=$x y=$y item=$clicked")
+//                }
+//                onUpdateItems = { listView, offsetIndex, displayList ->
+//                    Bukkit.broadcastMessage(displayList.toString())
+//                }
+//            }.run {
+//                button(0, 3) {
+//                    onClick = {button, event ->
+//                        if (byPage) page -= 1.0 else index--
+//                    }
+//                }
+//                button(1, 3) {
+//                    onClick = { button, event ->
+//                        if (byPage)  page += 1.0 else index++
+//                    }
+//                }
+//            }
+//        }
+//    }
 }

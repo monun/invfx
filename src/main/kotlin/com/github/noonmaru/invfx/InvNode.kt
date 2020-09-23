@@ -17,16 +17,9 @@
 package com.github.noonmaru.invfx
 
 /**
- * [InvPane]과 [InvListView]로 구성 가능한 [InvWindow]클래스
+ *  [InvScene]의 최상위 인터페이스
  */
-interface InvScene : InvWindow {
-    /**
-     * 등록된 [InvRegion] 목록
-     */
-    val regions: List<InvRegion>
-
-    /**
-     * 좌표에 등록된 [InvRegion]을 반환합니다.
-     */
-    fun regionAt(x: Int, y: Int): InvRegion?
+interface InvNode {
+    val x: Int
+    val y: Int
 }

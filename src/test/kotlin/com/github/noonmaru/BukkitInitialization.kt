@@ -1,4 +1,4 @@
-package com.github.noonmaru.sample
+package com.github.noonmaru
 
 import net.minecraft.server.v1_16_R2.DispenserRegistry
 import net.minecraft.server.v1_16_R2.WorldServer

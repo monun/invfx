@@ -21,7 +21,7 @@ dependencies {
     compileOnly("com.destroystokyo.paper:paper-api:1.16.3-R0.1-SNAPSHOT")
 
     implementation("com.github.noonmaru:tap:3.1.1")
-    implementation("com.github.noonmaru:kommand:0.3.1")
+    implementation("com.github.noonmaru:kommand:0.4.0")
 
     testImplementation("junit:junit:4.13")
     testImplementation("org.mockito:mockito-core:3.3.3")
@@ -61,7 +61,7 @@ tasks {
         archiveClassifier.set("") // Remove 'all'
 
         if (relocate) {
-            relocate("com.github.noonmaru.kommand", "${rootProject.group}.${rootProject.name}.ommand")
+            relocate("com.github.noonmaru.kommand", "${rootProject.group}.${rootProject.name}.kommand")
             relocate("com.github.noonmaru.tap", "${rootProject.group}.${rootProject.name}.tap")
         }
     }

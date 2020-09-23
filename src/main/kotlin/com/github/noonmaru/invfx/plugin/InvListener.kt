@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx
+package com.github.noonmaru.invfx.plugin
 
+import com.github.noonmaru.invfx.window
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -26,7 +27,7 @@ import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 
-class InventoryListener : Listener {
+class InvListener : Listener {
     @EventHandler
     fun onOpen(event: InventoryOpenEvent) {
         event.inventory.window?.onOpen(event)
