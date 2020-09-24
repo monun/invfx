@@ -18,15 +18,10 @@ package com.github.noonmaru.invfx.plugin
 
 import com.github.noonmaru.invfx.window
 import com.github.noonmaru.kommand.kommand
-import com.github.noonmaru.tap.util.GitHubSupport
-import com.github.noonmaru.tap.util.UpToDateException
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.github.noonmaru.tap.util.updateFromGitHubMagically
 import org.bukkit.Bukkit
-import org.bukkit.command.CommandSender
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.plugin.java.JavaPlugin
-import java.io.File
 
 class InvFXPlugin : JavaPlugin() {
     override fun onEnable() {
@@ -45,79 +40,17 @@ class InvFXPlugin : JavaPlugin() {
     private fun setupCommands() {
         kommand {
             register("invfx") {
+                then("version") {
+                    executes {
+                        it.sender.sendMessage("${description.name} ${description.version}")
+                    }
+                }
                 then("update") {
-                    executes { update(it.sender) }
-                }
-//                then("test") {
-//                    then("trim" to bool(), "page" to bool()) {
-//                        require { this is Player }
-//                        executes { context ->
-//                            val trim = context.parseArgument<Boolean>("trim")
-//                            val page = context.parseArgument<Boolean>("page")
-//                            val player = context.sender as Player
-//                            player.openWindow(createTestInv(trim, page))
-//
-//                        }
-//                    }
-//                }
-            }
-        }
-    }
-
-    // Update example
-    private fun update(sender: CommandSender) {
-        sender.sendMessage("Attempt to update.")
-        update {
-            onSuccess { url ->
-                sender.sendMessage("Updated successfully. Applies after the server restarts.")
-                sender.sendMessage(url)
-            }
-            onFailure { t ->
-                if (t is UpToDateException) sender.sendMessage("Up to date!")
-                else {
-                    sender.sendMessage("Update failed. Check the console.")
-                    t.printStackTrace()
+                    executes {
+                        updateFromGitHubMagically("noonmaru", "inv-fx", "InvFX.jar", it.sender::sendMessage)
+                    }
                 }
             }
         }
     }
-
-    private fun update(callback: (Result<String>.() -> Unit)? = null) {
-        GlobalScope.launch {
-            val file = file
-            val updateFile = File(file.parentFile, "update/${file.name}")
-            GitHubSupport.downloadUpdate(updateFile, "noonmaru", "inv-fx", description.version, callback)
-        }
-    }
-
-//    private fun createTestInv(trim: Boolean, byPage: Boolean) = InvFX.scene(4, "test") {
-//        panel(0, 0, 9, 4) {
-//            listView(0, 0, 3, 3, trim, "ABCDEFGHIJK".map { it.toString() }) {
-//                transform = {
-//                    ItemStack(Material.BOOK).also {
-//                        it.itemMeta = it.itemMeta.also { meta ->
-//                            meta.setDisplayName(this)
-//                        }
-//                    }
-//                }
-//                onClickItem = { listView, x, y, clicked, event ->
-//                    event.whoClicked.sendMessage("x=$x y=$y item=$clicked")
-//                }
-//                onUpdateItems = { listView, offsetIndex, displayList ->
-//                    Bukkit.broadcastMessage(displayList.toString())
-//                }
-//            }.run {
-//                button(0, 3) {
-//                    onClick = {button, event ->
-//                        if (byPage) page -= 1.0 else index--
-//                    }
-//                }
-//                button(1, 3) {
-//                    onClick = { button, event ->
-//                        if (byPage)  page += 1.0 else index++
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
