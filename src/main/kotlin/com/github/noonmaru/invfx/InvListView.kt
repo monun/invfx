@@ -16,6 +16,8 @@
 
 package com.github.noonmaru.invfx
 
+import kotlin.math.max
+
 /**
  * 목록을 표시 가능한 [InvScene]의 구성요소
  */
@@ -27,7 +29,7 @@ interface InvListView<T> : InvRegion {
         set(value) {
             val count = items.count()
             val size = size
-            val lastPage = (count - 1) / size
+            val lastPage = max(0, (count - 1)) / size
             val newPage = value.coerceIn(0.0, lastPage.toDouble())
             index = (newPage * size).toInt()
         }

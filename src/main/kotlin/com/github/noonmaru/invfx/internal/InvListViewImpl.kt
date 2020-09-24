@@ -20,6 +20,7 @@ import com.github.noonmaru.invfx.InvListView
 import com.github.noonmaru.invfx.builder.InvListViewBuilder
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
+import kotlin.math.max
 
 internal class InvListViewImpl<T>(
     scene: InvSceneImpl,
@@ -63,11 +64,12 @@ internal class InvListViewImpl<T>(
         val width = width
         val size = size
 
-        val offsetIndex = if (trim) {
-            updateIndex.coerceIn(0, itemsCount - size)
-        } else {
-            updateIndex.coerceIn(0, itemsCount - 1)
-        }
+        val offsetIndex = updateIndex.coerceIn(0, max(0, if (trim) itemsCount - size else itemsCount - 1))
+//            if (trim) {
+//            updateIndex.coerceIn(0, itemsCount - size)
+//        } else {
+//            updateIndex.coerceIn(0, itemsCount - 1)
+//        }
 
         val displayItems = displayItems.apply { clear() }
 
