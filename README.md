@@ -1,6 +1,6 @@
 # InvFX
 [![Build Status](https://travis-ci.org/noonmaru/invfx.svg?branch=master)](https://travis-ci.org/noonmaru/invfx)
-![JitPack](https://img.shields.io/jitpack/v/github/noonmaru/invfx)
+[![JitPack](https://jitpack.io/v/noonmaru/invfx.svg)](https://jitpack.io/#noonmaru/invfx)
 ![GitHub](https://img.shields.io/github/license/noonmaru/invfx)
 
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
