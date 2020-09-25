@@ -6,8 +6,6 @@ plugins {
 
 val relocate = (findProperty("relocate") as? String)?.toBoolean() ?: true
 
-println("relocate = $relocate")
-
 repositories {
     mavenLocal()
     mavenCentral()
