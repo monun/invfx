@@ -5,28 +5,28 @@
 
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
-> ---
-> ### Features
-> * InvWindow
-> * InvScene
->     * Pane (Button)
->    * ListView
-> ---
-> ### Gradle
->```groovy
->allprojects {
->       repositories {
->        ...
->        maven { url 'https://jitpack.io' }
->    }
->}
->```
->```groovy
->dependencies {
->    	implementation 'com.github.noonmaru:invfx:Tag'
->    }
->```
->---
+---
+### Features
+* InvWindow
+* InvScene
+* ListView
+* Pane (Button)
+---
+### Gradle
+```groovy
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+```groovy
+dependencies {
+    implementation 'com.github.noonmaru:invfx:Tag'
+}
+```
+---
  ### Example code
 ```kotlin
 InvFX.scene(5, "Example") {
