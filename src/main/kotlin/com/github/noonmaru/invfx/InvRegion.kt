@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack
 /**
  * 구역을 가지는 [InvScene]의 구성요소 상위 인터페이스
  *
- * @see InvRegion
  * @see InvListView
  * @see InvButton
  * @see InvScene

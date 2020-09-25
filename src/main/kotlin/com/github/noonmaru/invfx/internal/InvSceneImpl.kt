@@ -19,6 +19,7 @@ package com.github.noonmaru.invfx.internal
 import com.github.noonmaru.invfx.InvScene
 import com.github.noonmaru.invfx.InvStage
 import com.github.noonmaru.invfx.builder.InvSceneBuilder
+import com.google.common.collect.ImmutableList
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -27,28 +28,27 @@ import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 
 internal class InvSceneImpl(line: Int, title: String) : InvStage(line, title), InvScene {
-    private lateinit var onOpen: (scene: InvScene, event: InventoryOpenEvent) -> Unit
-    private lateinit var onClose: (scene: InvScene, event: InventoryCloseEvent) -> Unit
-    private lateinit var onClickBottom: (scene: InvScene, event: InventoryClickEvent) -> Unit
+    private lateinit var openActions: List<(scene: InvScene, event: InventoryOpenEvent) -> Unit>
+    private lateinit var closeActions: List<(scene: InvScene, event: InventoryCloseEvent) -> Unit>
+    private lateinit var clickBottomActions: List<(scene: InvScene, event: InventoryClickEvent) -> Unit>
 
     override lateinit var regions: List<InvRegionImpl>
 
     fun initialize(builder: InvSceneBuilder) {
-        onOpen = builder.onOpen
-        onClose = builder.onClose
-        onClickBottom = builder.onClickBottom
-        regions = builder.regions.map { it.build() }
-
-        builder.runCatching { onInit() }
+        openActions = ImmutableList.copyOf(builder.openActions)
+        closeActions = ImmutableList.copyOf(builder.closeActions)
+        clickBottomActions = ImmutableList.copyOf(builder.clickBottomActions)
+        regions = ImmutableList.copyOf(builder.regions.map { it.build() })
+        builder.initActions.forEach { kotlin.runCatching { it(this) } }
     }
 
     override fun onOpen(event: InventoryOpenEvent) {
-        runCatching { onOpen(this, event) }
+        openActions.forEachInvokeSafety { it(this, event) }
         regions.forEach { it.onOpen(event) }
     }
 
     override fun onClose(event: InventoryCloseEvent) {
-        runCatching { onClose(this, event) }
+        closeActions.forEachInvokeSafety { it(this, event) }
     }
 
     override fun onClickOutside(event: InventoryClickEvent) {
@@ -73,7 +73,7 @@ internal class InvSceneImpl(line: Int, title: String) : InvStage(line, title), I
 
     override fun onClickBottom(event: InventoryClickEvent) {
         event.isCancelled = true
-        runCatching { onClickBottom(this, event) }
+        clickBottomActions.forEachInvokeSafety { it(this, event) }
     }
 
     override fun onDrag(event: InventoryDragEvent) {

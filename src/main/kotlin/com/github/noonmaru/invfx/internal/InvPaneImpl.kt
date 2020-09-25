@@ -26,22 +26,21 @@ internal class InvPaneImpl(scene: InvSceneImpl, x: Int, y: Int, width: Int, heig
     override lateinit var buttons: List<InvButtonImpl>
         private set
 
-    private lateinit var onClick: (InvPane, Int, Int, InventoryClickEvent) -> Unit
+    private lateinit var clickActions: List<(InvPane, Int, Int, InventoryClickEvent) -> Unit>
 
     fun initialize(builder: InvPaneBuilder) {
-        this.onClick = builder.onClick
+        this.clickActions = ImmutableList.copyOf(builder.clickActions)
         this.buttons = ImmutableList.copyOf(builder.buttonBuilders.map { it.build() })
 
-        builder.runCatching { onInit() }
-    }
-
-    override fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
-        runCatching { onClick(this, x, y, event) }
-
-        buttonAt(x, y)?.runCatching { onClick(this, event) }
+        builder.initActions.forEachInvokeSafety { it(this) }
     }
 
     override fun buttonAt(x: Int, y: Int): InvButtonImpl? {
         return buttons.find { it.x == x && it.y == y }
+    }
+
+    override fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
+        clickActions.forEachInvokeSafety { it(this, x, y, event) }
+        buttonAt(x, y)?.onClick(event)
     }
 }

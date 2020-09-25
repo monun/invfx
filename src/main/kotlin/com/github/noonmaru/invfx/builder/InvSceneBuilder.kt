@@ -29,29 +29,24 @@ import org.bukkit.event.inventory.InventoryOpenEvent
  * [InvScene]를 사전설정할 수 있는 클래스
  */
 class InvSceneBuilder internal constructor(private val line: Int, title: String) {
-    internal val regions = ArrayList<InvRegionBuilder>(0)
-
-    /**
-     * [InvScene]이 초기화될 때 호출
-     */
-    var onInit: InvScene.() -> Unit = { }
-
-    /**
-     * [org.bukkit.entity.Player]가 [InvScene]을 열때 호출
-     */
-    var onOpen: (scene: InvScene, event: InventoryOpenEvent) -> Unit = { _, _ -> }
-
-    /**
-     * [org.bukkit.entity.Player]가 [InvScene]을 닫을때 호출
-     */
-    var onClose: (scene: InvScene, event: InventoryCloseEvent) -> Unit = { _, _ -> }
-
-    /**
-     * [org.bukkit.entity.Player]가 자신의 인벤토리를 클릭했을때 호출
-     */
-    var onClickBottom: (scene: InvScene, event: InventoryClickEvent) -> Unit = { _, _ -> }
 
     private val instance: InvSceneImpl = InvSceneImpl(line, title)
+
+    internal val regions = ArrayList<InvRegionBuilder>(0)
+
+    internal val initActions = ArrayList<(InvScene) -> Unit>(0)
+
+    internal val openActions = ArrayList<(InvScene, InventoryOpenEvent) -> Unit>(0)
+
+    internal val closeActions = ArrayList<(InvScene, InventoryCloseEvent) -> Unit>(0)
+
+    internal val clickBottomActions = ArrayList<(InvScene, InventoryClickEvent) -> Unit>(0)
+
+    internal fun build(): InvScene {
+        return instance.apply {
+            initialize(this@InvSceneBuilder)
+        }
+    }
 
     private fun checkRegion(x: Int, y: Int, width: Int, height: Int) {
         require(x in 0..8) { "X must be between 0 and 8 ($x)" }
@@ -106,10 +101,33 @@ class InvSceneBuilder internal constructor(private val line: Int, title: String)
         }.instance
     }
 
-    internal fun build(): InvScene {
-        return instance.apply {
-            initialize(this@InvSceneBuilder)
-        }
+
+    /**
+     * [InvScene]이 초기화될 때 호출
+     */
+    fun onInit(action: (scene: InvScene) -> Unit) {
+        initActions += action
+    }
+
+    /**
+     * [org.bukkit.entity.Player]가 [InvScene]을 열때 호출
+     */
+    fun onOpen(action: (scene: InvScene, event: InventoryOpenEvent) -> Unit) {
+        openActions += action
+    }
+
+    /**
+     * [org.bukkit.entity.Player]가 [InvScene]을 닫을때 호출
+     */
+    fun onClose(action: (scene: InvScene, event: InventoryCloseEvent) -> Unit) {
+        closeActions += action
+    }
+
+    /**
+     * [org.bukkit.entity.Player]가 자신의 인벤토리를 클릭했을때 호출
+     */
+    fun onClickBottom(action: (scene: InvScene, event: InventoryClickEvent) -> Unit) {
+        clickBottomActions += action
     }
 }
 

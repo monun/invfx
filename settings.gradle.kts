@@ -1,1 +1,1 @@
-rootProject.name = "inv-fx"
+rootProject.name = "invfx"

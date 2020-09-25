@@ -5,4 +5,4 @@ api-version: '1.13'
 version: $version
 commands:
   invfx:
-    permission: inv-fx.commands
+    permission: invfx.commands

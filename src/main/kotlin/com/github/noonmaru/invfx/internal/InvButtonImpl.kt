@@ -18,19 +18,22 @@ package com.github.noonmaru.invfx.internal
 
 import com.github.noonmaru.invfx.InvButton
 import com.github.noonmaru.invfx.builder.InvButtonBuilder
+import com.google.common.collect.ImmutableList
 import org.bukkit.event.inventory.InventoryClickEvent
 
 internal class InvButtonImpl(
     override val pane: InvPaneImpl,
     x: Int, y: Int
 ) : InvNodeImpl(x, y), InvButton {
-    internal lateinit var onClick: (button: InvButton, event: InventoryClickEvent) -> Unit
-        private set
+
+    private lateinit var clickActions: List<(InvButton, InventoryClickEvent) -> Unit>
 
     fun initialize(builder: InvButtonBuilder) {
-        builder.item?.let { this.item = it }
-        this.onClick = builder.onClick
+        clickActions = ImmutableList.copyOf(builder.clickActions)
+        builder.initActions.forEachInvokeSafety { it(this) }
+    }
 
-        builder.runCatching { onInit() }
+    internal fun onClick(event: InventoryClickEvent) {
+        clickActions.forEachInvokeSafety { it(this, event) }
     }
 }

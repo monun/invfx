@@ -16,11 +16,16 @@
 
 package com.github.noonmaru.invfx.plugin
 
+import com.github.noonmaru.invfx.InvFX
+import com.github.noonmaru.invfx.openWindow
 import com.github.noonmaru.invfx.window
 import com.github.noonmaru.kommand.kommand
 import com.github.noonmaru.tap.util.updateFromGitHubMagically
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
 class InvFXPlugin : JavaPlugin() {
@@ -47,8 +52,31 @@ class InvFXPlugin : JavaPlugin() {
                 }
                 then("update") {
                     executes {
-                        updateFromGitHubMagically("noonmaru", "inv-fx", "InvFX.jar", it.sender::sendMessage)
+                        updateFromGitHubMagically("noonmaru", "invfx", "InvFX.jar", it.sender::sendMessage)
                     }
+                }
+                then("test") {
+                    require { this is Player }
+                    executes {
+                        (it.sender as Player).openWindow(testWindow())
+                    }
+                }
+            }
+        }
+    }
+
+    private fun testWindow() = InvFX.scene(5, "Example") {
+        panel(0, 0, 9, 5) {
+            listView(1, 1, 7, 3, false, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".map { it.toString() }) {
+                transform { item -> ItemStack(Material.BOOK).apply { lore = listOf(item) } }
+                onClickItem { _, _, _, item, _ -> Bukkit.broadcastMessage("CLICK_ITEM $item") }
+                onUpdateItems { _, _, displayList -> Bukkit.broadcastMessage("UPDATE $displayList") }
+            }.let { view ->
+                button(0, 2) {
+                    onClick { _, _ -> view.page-- }
+                }
+                button(8, 2) {
+                    onClick { _, _ -> view.page++ }
                 }
             }
         }

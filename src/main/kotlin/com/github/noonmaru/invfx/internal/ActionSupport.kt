@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.builder
+package com.github.noonmaru.invfx.internal
 
-import com.github.noonmaru.invfx.InvRegion
-import com.github.noonmaru.invfx.internal.InvRegionImpl
-
-/**
- * [InvRegion]를 사전설정 할 수 있는 클래스
- */
-abstract class InvRegionBuilder internal constructor() {
-
-    internal abstract val instance: InvRegionImpl
-
-    internal abstract fun build(): InvRegionImpl
-
+internal fun <T> Iterable<T>.forEachInvokeSafety(action: (T) -> Unit) {
+    forEach { it.runCatching(action).onFailure(Throwable::printStackTrace) }
 }

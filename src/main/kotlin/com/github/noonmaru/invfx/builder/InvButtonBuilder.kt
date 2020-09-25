@@ -20,32 +20,35 @@ import com.github.noonmaru.invfx.InvButton
 import com.github.noonmaru.invfx.internal.InvButtonImpl
 import com.github.noonmaru.invfx.internal.InvPaneImpl
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemStack
 
 /**
  * [InvButton]을 사전설정할 수 있는 클래스
  */
 class InvButtonBuilder internal constructor(pane: InvPaneImpl, x: Int, y: Int) {
-    /**
-     * [InvButton] 슬롯에 초기화될 아이템
-     */
-    var item: ItemStack? = null
-
-    /**
-     * [InvButton]이 초기화될 때 호출
-     */
-    var onInit: InvButton.() -> Unit = { }
-
-    /**
-     * [org.bukkit.entity.Player]가 클릭할 때 호출
-     */
-    var onClick: (button: InvButton, event: InventoryClickEvent) -> Unit = { _, _ -> }
 
     internal val instance: InvButtonImpl = InvButtonImpl(pane, x, y)
+
+    internal val initActions = ArrayList<(InvButton) -> Unit>(0)
+
+    internal val clickActions = ArrayList<(InvButton, InventoryClickEvent) -> Unit>(0)
 
     internal fun build(): InvButtonImpl {
         return instance.apply {
             initialize(this@InvButtonBuilder)
         }
+    }
+
+    /**
+     * [InvButton]이 초기화될 때 호출됩니다.
+     */
+    fun onInit(action: (button: InvButton) -> Unit) {
+        initActions += action
+    }
+
+    /**
+     * [org.bukkit.entity.Player]가 [InvButton]을 클릭할 때 호출됩니다.
+     */
+    fun onClick(action: (button: InvButton, event: InventoryClickEvent) -> Unit) {
+        clickActions += action
     }
 }

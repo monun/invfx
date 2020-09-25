@@ -19,46 +19,26 @@
 >```
 >```groovy
 >dependencies {
->    	implementation 'com.github.noonmaru:inv-fx:Tag'
+>    	implementation 'com.github.noonmaru:invfx:Tag'
 >    }
 >```
 >---
  ### Example code
 ```kotlin
-val scene = invScene(6, "Example") {
-    val listView = addListView(0, 0, 9, 5, list) {
-        onInit = { println("ListView INIT") }
-        onClickItem = { listView, x, y, item, event ->
-            println("ListView Click Item $item")
-        }
-    }
-
-    addPanel(0, 5, 9, 1) {
-        addButton(0, 0) {
-            item = ItemStack(Material.STICK)
-            onClick = { button, event ->
-                listView.first()
+InvFX.scene(5, "Example") {
+    panel(0, 0, 9, 5) {
+        listView(1, 1, 7, 3, false, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".map { it.toString() }) {
+            transform { item -> ItemStack(Material.BOOK).apply { lore = listOf(item) } }
+            onClickItem { _, _, _, item, _ -> Bukkit.broadcastMessage("CLICK_ITEM $item") }
+            onUpdateItems { _, _, displayList -> Bukkit.broadcastMessage("UPDATE $displayList") }
+        }.let { view ->
+            button(0, 2) {
+                onClick { _, _ -> view.page-- }
             }
-        }
-        addButton(8, 0) {
-            item = ItemStack(Material.BLAZE_ROD)
-            onClick = { button, event ->
-                listView.last()
-            }
-        }
-        addButton(3, 0) {
-            item = ItemStack(Material.STONE)
-            onClick = { button, event ->
-                listView.previous()
-            }
-        }
-        addButton(5, 0) {
-            item = ItemStack(Material.GRASS_BLOCK)
-            onClick = { button, event ->
-                listView.next()
+            button(8, 2) {
+                onClick { _, _ -> view.page++ }
             }
         }
     }
 }
-player.openWindow(scene)
 ```

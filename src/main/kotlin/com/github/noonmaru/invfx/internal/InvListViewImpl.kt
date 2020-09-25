@@ -18,6 +18,7 @@ package com.github.noonmaru.invfx.internal
 
 import com.github.noonmaru.invfx.InvListView
 import com.github.noonmaru.invfx.builder.InvListViewBuilder
+import com.google.common.collect.ImmutableList
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 import kotlin.math.max
@@ -30,31 +31,35 @@ internal class InvListViewImpl<T>(
     height: Int,
     override val trim: Boolean
 ) : InvRegionImpl(scene, x, y, width, height), InvListView<T> {
+
     override var index: Int = 0
         set(value) {
             field = updateItems(value)
         }
-    override lateinit var items: List<T>
-    override val displayItems = ArrayList<T>(size)
-    private lateinit var transform: T.() -> ItemStack
 
-    private lateinit var onUpdateItems: (InvListView<T>, Int, List<T>) -> Unit
-    private lateinit var onClickItem: (listView: InvListView<T>, x: Int, y: Int, clicked: T, event: InventoryClickEvent) -> Unit
+    override lateinit var items: List<T>
+
+    override val displayItems = ArrayList<T>(size)
+
+    private lateinit var transformer: (T) -> ItemStack
+
+    private lateinit var updateItemsActions: List<(InvListView<T>, Int, List<T>) -> Unit>
+
+    private lateinit var clickItemActions: List<(InvListView<T>, Int, Int, T, InventoryClickEvent) -> Unit>
 
     fun initialize(builder: InvListViewBuilder<T>) {
-        this.items = builder.list
-        this.transform = builder.transform
-        this.onUpdateItems = builder.onUpdateItems
-        this.onClickItem = builder.onClickItem
-
-        builder.runCatching { onInit() }
+        this.items = builder.items
+        this.transformer = builder.transformer
+        this.updateItemsActions = ImmutableList.copyOf(builder.updateItemsActions)
+        this.clickItemActions = ImmutableList.copyOf(builder.clickItemAction)
+        builder.initActions.forEach { it.runCatching { invoke(this@InvListViewImpl) } }
         refresh()
     }
 
     override fun onClick(x: Int, y: Int, event: InventoryClickEvent) {
         val index = x + y * width
-        displayItems.elementAtOrNull(index)?.runCatching {
-            onClickItem(this@InvListViewImpl, x, y, this, event)
+        displayItems.elementAtOrNull(index)?.let { item ->
+            clickItemActions.forEachInvokeSafety { it(this, x, y, item, event) }
         }
     }
 
@@ -63,14 +68,7 @@ internal class InvListViewImpl<T>(
         val itemsCount = items.count()
         val width = width
         val size = size
-
         val offsetIndex = updateIndex.coerceIn(0, max(0, if (trim) itemsCount - size else itemsCount - 1))
-//            if (trim) {
-//            updateIndex.coerceIn(0, itemsCount - size)
-//        } else {
-//            updateIndex.coerceIn(0, itemsCount - 1)
-//        }
-
         val displayItems = displayItems.apply { clear() }
 
         for (i in 0 until size) {
@@ -82,11 +80,10 @@ internal class InvListViewImpl<T>(
             val x = i % width
             val y = i / width
 
-            setItem(x, y, item?.transform())
+            setItem(x, y, item?.let(transformer))
         }
 
-        runCatching { onUpdateItems(this, offsetIndex, displayItems) }
-
+        updateItemsActions.forEachInvokeSafety { it(this, offsetIndex, displayItems) }
         return offsetIndex
     }
 }

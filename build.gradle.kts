@@ -76,7 +76,7 @@ tasks {
 
 publishing {
     publications {
-        create<MavenPublication>("inv-fx") {
+        create<MavenPublication>("invfx") {
             from(components["java"])
             artifact(tasks["sourcesJar"])
         }

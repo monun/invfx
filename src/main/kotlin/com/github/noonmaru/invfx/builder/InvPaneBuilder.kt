@@ -27,19 +27,20 @@ import org.bukkit.event.inventory.InventoryClickEvent
  */
 class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, width: Int, height: Int) :
     InvRegionBuilder() {
-    internal val buttonBuilders = ArrayList<InvButtonBuilder>(0)
-
-    /**
-     * [InvPane]을 초기화할 때 호출
-     */
-    var onInit: InvPane.() -> Unit = { }
-
-    /**
-     * [org.bukkit.entity.Player]가 구역 내의 슬롯을 클릭할 때 호출됩니다.
-     */
-    var onClick: (pane: InvPane, x: Int, y: Int, event: InventoryClickEvent) -> Unit = { _, _, _, _ -> }
 
     override val instance: InvPaneImpl = InvPaneImpl(scene, x, y, width, height)
+
+    internal val buttonBuilders = ArrayList<InvButtonBuilder>(0)
+
+    internal val initActions = ArrayList<(InvPane) -> Unit>(0)
+
+    internal val clickActions = ArrayList<(pane: InvPane, x: Int, y: Int, event: InventoryClickEvent) -> Unit>(0)
+
+    override fun build(): InvPaneImpl {
+        return instance.apply {
+            initialize(this@InvPaneBuilder)
+        }
+    }
 
     /**
      * [InvButton]을 추가합니다.
@@ -55,9 +56,17 @@ class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, w
         }.instance
     }
 
-    override fun build(): InvPaneImpl {
-        return instance.apply {
-            initialize(this@InvPaneBuilder)
-        }
+    /**
+     * [InvPane]이 초기화될 때 호출됩니다.
+     */
+    fun onInit(action: (pane: InvPane) -> Unit) {
+        initActions += action
+    }
+
+    /**
+     * [org.bukkit.entity.Player]가 구역 내의 슬롯을 클릭할 때 호출됩니다.
+     */
+    fun onClick(action: (pane: InvPane, x: Int, y: Int, event: InventoryClickEvent) -> Unit) {
+        clickActions += action
     }
 }
