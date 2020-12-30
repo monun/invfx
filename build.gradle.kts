@@ -77,7 +77,7 @@ tasks {
             val versions = arrayOf(
                 "1.16.4"
             )
-            val buildtoolsDir = project.file(".buildtools")
+            val buildtoolsDir = File(rootDir, ".buildtools")
             val buildtools = File(buildtoolsDir, "BuildTools.jar")
 
             val maven = File(System.getProperty("user.home"), ".m2/repository/org/spigotmc/spigot/")
