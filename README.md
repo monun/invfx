@@ -1,5 +1,5 @@
 # InvFX
-[![Build Status](https://travis-ci.org/noonmaru/invfx.svg?branch=master)](https://travis-ci.org/noonmaru/invfx)
+[![Build Status](https://travis-ci.com/noonmaru/invfx.svg?branch=master)](https://travis-ci.org/noonmaru/invfx)
 [![JitPack](https://jitpack.io/v/noonmaru/invfx.svg)](https://jitpack.io/#noonmaru/invfx)
 ![GitHub](https://img.shields.io/github/license/noonmaru/invfx)
 
