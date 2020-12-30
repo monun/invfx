@@ -3,16 +3,16 @@ import java.io.OutputStream
 plugins {
     kotlin("jvm") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    `maven-publish`
+//    `maven-publish`
 }
 
 val relocate = (findProperty("relocate") as? String)?.toBoolean() ?: true
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven(url = "https://papermc.io/repo/repository/maven-public/")
     maven(url = "https://jitpack.io/")
-    mavenLocal()
 }
 
 dependencies {
@@ -77,7 +77,7 @@ tasks {
             val versions = arrayOf(
                 "1.16.4"
             )
-            val buildtoolsDir = File(rootDir, ".buildtools")
+            val buildtoolsDir = file(".buildtools")
             val buildtools = File(buildtoolsDir, "BuildTools.jar")
 
             val maven = File(System.getProperty("user.home"), ".m2/repository/org/spigotmc/spigot/")
@@ -112,12 +112,12 @@ tasks {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>(project.property("pluginName").toString()) {
-            artifactId = project.name
-            from(components["java"])
-            artifact(tasks["sourcesJar"])
-        }
-    }
-}
+//publishing {
+//    publications {
+//        create<MavenPublication>(project.property("pluginName").toString()) {
+//            artifactId = project.name
+//            from(components["java"])
+//            artifact(tasks["sourcesJar"])
+//        }
+//    }
+//}
