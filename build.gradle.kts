@@ -3,7 +3,7 @@ import java.io.OutputStream
 plugins {
     kotlin("jvm") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "5.2.0"
-//    `maven-publish`
+    `maven-publish`
 }
 
 val relocate = (findProperty("relocate") as? String)?.toBoolean() ?: true
@@ -77,7 +77,7 @@ tasks {
             val versions = arrayOf(
                 "1.16.4"
             )
-            val buildtoolsDir = file(".buildtools")
+            val buildtoolsDir = file(".buildtools/")
             val buildtools = File(buildtoolsDir, "BuildTools.jar")
 
             val maven = File(System.getProperty("user.home"), ".m2/repository/org/spigotmc/spigot/")
@@ -86,11 +86,12 @@ tasks {
                 repos.find { it.name.startsWith(version) }?.also { println("Skip downloading spigot-$version") } == null
             }.also { if (it.isEmpty()) return@doLast }
 
-            registering(de.undercouch.gradle.tasks.download.Download::class) {
+            val download by registering(de.undercouch.gradle.tasks.download.Download::class) {
                 src("https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar")
                 dest(buildtools)
-                download()
             }
+            download.get().download()
+
             runCatching {
                 for (v in missingVersions) {
                     println("Downloading spigot-$v...")
@@ -112,12 +113,12 @@ tasks {
     }
 }
 
-//publishing {
-//    publications {
-//        create<MavenPublication>(project.property("pluginName").toString()) {
-//            artifactId = project.name
-//            from(components["java"])
-//            artifact(tasks["sourcesJar"])
-//        }
-//    }
-//}
+publishing {
+    publications {
+        create<MavenPublication>(project.property("pluginName").toString()) {
+            artifactId = project.name
+            from(components["java"])
+            artifact(tasks["sourcesJar"])
+        }
+    }
+}
