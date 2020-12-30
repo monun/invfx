@@ -9,10 +9,10 @@ plugins {
 val relocate = (findProperty("relocate") as? String)?.toBoolean() ?: true
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven(url = "https://papermc.io/repo/repository/maven-public/")
     maven(url = "https://jitpack.io/")
+    mavenLocal()
 }
 
 dependencies {
