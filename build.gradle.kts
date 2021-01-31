@@ -58,8 +58,6 @@ tasks {
             relocate("com.github.monun.tap", "${rootProject.group}.${rootProject.name}.tap")
         }
 
-        minimize()
-
         doFirst {
             println("relocate = $relocate")
         }
