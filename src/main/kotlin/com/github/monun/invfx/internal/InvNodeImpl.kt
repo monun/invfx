@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx
+package com.github.monun.invfx.internal
 
-/**
- * [InvButton]추가가 가능한 [InvScene]의 구성요소
- */
-interface InvPane : InvRegion {
-    /**
-     * 등록된 버튼목록입니다.
-     */
-    val buttons: List<InvButton>
+import com.github.monun.invfx.InvNode
 
-    /**
-     * 좌표에 등록된 버튼을 가져옵니다.
-     */
-    fun buttonAt(x: Int, y: Int): InvButton?
-}
+internal abstract class InvNodeImpl(final override val x: Int, final override val y: Int) : InvNode

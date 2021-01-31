@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.internal
+package com.github.monun.invfx.internal
 
-import com.github.noonmaru.invfx.InvButton
-import com.github.noonmaru.invfx.builder.InvButtonBuilder
+import com.github.monun.invfx.InvButton
+import com.github.monun.invfx.builder.InvButtonBuilder
 import com.google.common.collect.ImmutableList
 import org.bukkit.event.inventory.InventoryClickEvent
 

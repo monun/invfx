@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx
+package com.github.monun.invfx
 
-import com.github.noonmaru.invfx.builder.InvSceneBuilder
+import com.github.monun.invfx.builder.InvSceneBuilder
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 

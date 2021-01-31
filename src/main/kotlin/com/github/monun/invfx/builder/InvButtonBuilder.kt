@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.builder
+package com.github.monun.invfx.builder
 
-import com.github.noonmaru.invfx.InvButton
-import com.github.noonmaru.invfx.internal.InvButtonImpl
-import com.github.noonmaru.invfx.internal.InvPaneImpl
+import com.github.monun.invfx.InvButton
+import com.github.monun.invfx.internal.InvButtonImpl
+import com.github.monun.invfx.internal.InvPaneImpl
 import org.bukkit.event.inventory.InventoryClickEvent
 
 /**

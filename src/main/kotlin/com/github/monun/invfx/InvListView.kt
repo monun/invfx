@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx
+package com.github.monun.invfx
 
 import kotlin.math.max
 

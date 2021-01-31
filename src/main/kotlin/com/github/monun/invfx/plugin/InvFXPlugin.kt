@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.plugin
+package com.github.monun.invfx.plugin
 
-import com.github.noonmaru.invfx.InvFX
-import com.github.noonmaru.invfx.openWindow
-import com.github.noonmaru.invfx.window
-import com.github.noonmaru.kommand.kommand
-import com.github.noonmaru.tap.util.updateFromGitHubMagically
+import com.github.monun.invfx.InvFX
+import com.github.monun.invfx.openWindow
+import com.github.monun.invfx.window
+import com.github.monun.kommand.kommand
+import com.github.monun.tap.util.updateFromGitHubMagically
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player

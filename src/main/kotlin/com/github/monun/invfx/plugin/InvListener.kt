@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.plugin
+package com.github.monun.invfx.plugin
 
-import com.github.noonmaru.invfx.window
+import com.github.monun.invfx.window
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

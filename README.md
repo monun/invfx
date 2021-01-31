@@ -1,7 +1,7 @@
 # InvFX
-[![Build Status](https://travis-ci.com/noonmaru/invfx.svg?branch=master)](https://travis-ci.org/noonmaru/invfx)
-[![JitPack](https://jitpack.io/v/noonmaru/invfx.svg)](https://jitpack.io/#noonmaru/invfx)
-![GitHub](https://img.shields.io/github/license/noonmaru/invfx)
+[![Build Status](https://travis-ci.com/monun/invfx.svg?branch=master)](https://travis-ci.org/monun/invfx)
+[![JitPack](https://jitpack.io/v/monun/invfx.svg)](https://jitpack.io/#monun/invfx)
+![GitHub](https://img.shields.io/github/license/monun/invfx)
 
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
@@ -23,7 +23,7 @@ allprojects {
 ```
 ```groovy
 dependencies {
-    implementation 'com.github.noonmaru:invfx:Tag'
+    implementation 'com.github.monun:invfx:Tag'
 }
 ```
 ---

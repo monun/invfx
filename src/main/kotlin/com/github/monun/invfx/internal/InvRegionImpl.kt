@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.builder
+package com.github.monun.invfx.internal
 
-import com.github.noonmaru.invfx.InvRegion
-import com.github.noonmaru.invfx.internal.InvRegionImpl
+import com.github.monun.invfx.InvRegion
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 
-/**
- * [InvRegion]를 사전설정 할 수 있는 클래스
- */
-abstract class InvRegionBuilder internal constructor() {
+internal abstract class InvRegionImpl(
+    override val scene: InvSceneImpl,
+    x: Int,
+    y: Int,
+    override val width: Int, override val height: Int
+) : InvNodeImpl(x, y), InvRegion {
+    abstract fun onClick(x: Int, y: Int, event: InventoryClickEvent)
 
-    internal abstract val instance: InvRegionImpl
-
-    internal abstract fun build(): InvRegionImpl
-
+    open fun onOpen(event: InventoryOpenEvent) {}
 }

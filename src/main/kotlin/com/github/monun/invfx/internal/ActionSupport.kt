@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.invfx.internal
+package com.github.monun.invfx.internal
 
-import com.github.noonmaru.invfx.InvNode
-
-internal abstract class InvNodeImpl(final override val x: Int, final override val y: Int) : InvNode
+internal fun <T> Iterable<T>.forEachInvokeSafety(action: (T) -> Unit) {
+    forEach { it.runCatching(action).onFailure(Throwable::printStackTrace) }
+}
