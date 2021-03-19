@@ -20,6 +20,7 @@ import com.github.monun.invfx.InvListView
 import com.github.monun.invfx.internal.InvListViewImpl
 import com.github.monun.invfx.internal.InvRegionImpl
 import com.github.monun.invfx.internal.InvSceneImpl
+import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
@@ -45,7 +46,7 @@ class InvListViewBuilder<T> internal constructor(
             val toString = item.toString()
             ItemStack(Material.BOOK).apply {
                 itemMeta = itemMeta.apply {
-                    setDisplayName(toString)
+                    displayName(Component.text(toString))
                 }
             }
         }

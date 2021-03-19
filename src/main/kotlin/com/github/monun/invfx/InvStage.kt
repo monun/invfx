@@ -16,6 +16,7 @@
 
 package com.github.monun.invfx
 
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -27,7 +28,7 @@ import org.bukkit.inventory.Inventory
 
 open class InvStage(lines: Int, title: String) : InvWindow {
     @Suppress("LeakingThis")
-    private val inv: Inventory = Bukkit.getServer().createInventory(this, lines * 9, title)
+    private val inv: Inventory = Bukkit.getServer().createInventory(this, lines * 9, Component.text(title))
 
     final override fun getInventory(): Inventory {
         return inv

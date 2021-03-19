@@ -21,6 +21,7 @@ import com.github.monun.invfx.openWindow
 import com.github.monun.invfx.window
 import com.github.monun.kommand.kommand
 import com.github.monun.tap.util.updateFromGitHubMagically
+import net.kyori.adventure.text.Component.text
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -68,9 +69,8 @@ class InvFXPlugin : JavaPlugin() {
     private fun testWindow() = InvFX.scene(5, "Example") {
         panel(0, 0, 9, 5) {
             listView(1, 1, 7, 3, false, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".map { it.toString() }) {
-                transform { item -> ItemStack(Material.BOOK).apply { lore = listOf(item) } }
-                onClickItem { _, _, _, item, _ -> Bukkit.broadcastMessage("CLICK_ITEM $item") }
-                onUpdateItems { _, _, displayList -> Bukkit.broadcastMessage("UPDATE $displayList") }
+                transform { item -> ItemStack(Material.BOOK).apply { lore(listOf(text(item))) } }
+                onClickItem { _, _, _, item, event -> event.whoClicked.sendMessage(text("CLICK_ITEM $item")) }
             }.let { view ->
                 button(0, 2) {
                     onClick { _, _ -> view.page-- }
