@@ -1,7 +1,7 @@
 import java.io.OutputStream
 
 plugins {
-    kotlin("jvm") version "1.4.31"
+    kotlin("jvm") version "1.4.32"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     `maven-publish`
 }
@@ -17,11 +17,11 @@ repositories {
 
 dependencies {
     compileOnly(kotlin("stdlib"))
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
     compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
 
-    implementation("com.github.monun:tap:3.4.0")
-    implementation("com.github.monun:kommand:0.8.0")
+    implementation("com.github.monun:tap:3.4.9")
+    implementation("com.github.monun:kommand:0.9.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
@@ -65,19 +65,21 @@ tasks {
     build {
         dependsOn(shadowJar)
     }
-    create<Copy>("paper") {
+    create<Copy>("copyToServer") {
         from(shadowJar)
-        var dest = file(".paper/plugins")
-        // if plugin.jar exists in plugins change dest to plugins/update
-        if (File(dest, shadowJar.get().archiveFileName.get()).exists()) dest = File(dest, "update")
-        into(dest)
+        val plugins = File(rootDir, ".server/plugins")
+        if (File(plugins, shadowJar.get().archiveFileName.get()).exists()) {
+            into(File(plugins, "update"))
+        } else {
+            into(plugins)
+        }
     }
     create<DefaultTask>("setupWorkspace") {
         doLast {
             val versions = arrayOf(
                 "1.16.5"
             )
-            val buildtoolsDir = file(".buildtools/")
+            val buildtoolsDir = file(".buildtools")
             val buildtools = File(buildtoolsDir, "BuildTools.jar")
 
             val maven = File(System.getProperty("user.home"), ".m2/repository/org/spigotmc/spigot/")
