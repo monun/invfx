@@ -1,7 +1,5 @@
 #!/bin/bash
 
-./gradlew clean copyToServer -Prelocate=false
-
 server=paper
 version=1.16.5
 plugins=(
