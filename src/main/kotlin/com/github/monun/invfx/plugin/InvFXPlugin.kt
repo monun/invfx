@@ -49,8 +49,8 @@ class InvFXPlugin : JavaPlugin() {
         kommand {
             register("invfx") {
                 then("version") {
-                    executes {
-                        it.sender.sendMessage("${description.name} ${description.version}")
+                    executes { ctxt ->
+                        ctxt.sender.sendMessage("${description.name} ${description.version}")
                     }
                 }
                 then("update") {
@@ -59,7 +59,7 @@ class InvFXPlugin : JavaPlugin() {
                     }
                 }
                 then("test") {
-                    require { this is Player }
+                    require { sender -> sender is Player }
                     executes {
                         (it.sender as Player).openWindow(testWindow())
                     }
