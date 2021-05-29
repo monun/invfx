@@ -6,12 +6,16 @@
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
 ---
-### Features
+### 기능
 * InvWindow
 * InvScene
 * ListView
 * Pane (Button)
 ---
+### 환경
+* JAVA 16
+* Kotlin 1.5.10
+* Paper 1.16.5
 ### Gradle
 ```groovy
 allprojects {
@@ -27,14 +31,13 @@ dependencies {
 }
 ```
 ---
- ### Example code
+### Example code
 ```kotlin
 InvFX.scene(5, "Example") {
     panel(0, 0, 9, 5) {
         listView(1, 1, 7, 3, false, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".map { it.toString() }) {
-            transform { item -> ItemStack(Material.BOOK).apply { lore = listOf(item) } }
-            onClickItem { _, _, _, item, _ -> Bukkit.broadcastMessage("CLICK_ITEM $item") }
-            onUpdateItems { _, _, displayList -> Bukkit.broadcastMessage("UPDATE $displayList") }
+            transform { item -> ItemStack(Material.BOOK).apply { lore(listOf(text(item))) } }
+            onClickItem { _, _, _, item, event -> event.whoClicked.sendMessage(text("CLICK_ITEM $item")) }
         }.let { view ->
             button(0, 2) {
                 onClick { _, _ -> view.page-- }
