@@ -1,8 +1,6 @@
 jdk:
   - openjdk11
 before_install:
-  - sdk install java 16.0.1-open
-  - sdk use java 16.0.1-open
   - chmod +x ./gradlew
 install:
   - ./gradlew clean -Pgroup=$GROUP -Pversion=$VERSION -xtest publishToMavenLocal
