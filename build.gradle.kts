@@ -36,14 +36,6 @@ dependencies {
     testImplementation("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
 }
 
-/*//ProtocolLib
-repositories {
-    maven("https://repo.dmulloy2.net/repository/public/")
-}
-dependencies {
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0")
-}*/
-
 fun TaskContainer.createPaperJar(name: String, classifier: String = "", configuration: ShadowJar.() -> Unit) {
     create<ShadowJar>(name) {
         archiveBaseName.set(project.property("pluginName").toString())
@@ -52,6 +44,7 @@ fun TaskContainer.createPaperJar(name: String, classifier: String = "", configur
         from(sourceSets["main"].output)
         configurations = listOf(project.configurations.implementation.get().apply { isCanBeResolved = true })
         configuration()
+        minimize()
     }
 }
 

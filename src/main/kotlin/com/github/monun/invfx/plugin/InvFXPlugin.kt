@@ -21,6 +21,7 @@ import com.github.monun.invfx.openWindow
 import com.github.monun.invfx.window
 import com.github.monun.kommand.kommand
 import com.github.monun.tap.util.updateFromGitHubMagically
+import kotlinx.coroutines.DelicateCoroutinesApi
 import net.kyori.adventure.text.Component.text
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -29,6 +30,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
+@DelicateCoroutinesApi
 class InvFXPlugin : JavaPlugin() {
     override fun onEnable() {
         server.apply {
