@@ -13,8 +13,8 @@
 * Pane (Button)
 ---
 ### 환경
-* JAVA 11
-* Kotlin 1.4.32
+* JDK 8
+* Kotlin 1.5.10
 * Paper 1.16.5
 ### Gradle
 ```groovy
