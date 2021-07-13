@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.internal
+package io.github.monun.invfx
 
-internal fun <T> Iterable<T>.forEachInvokeSafety(action: (T) -> Unit) {
-    forEach { it.runCatching(action).onFailure(Throwable::printStackTrace) }
+/**
+ * [InvButton]추가가 가능한 [InvScene]의 구성요소
+ */
+interface InvPane : InvRegion {
+    /**
+     * 등록된 버튼목록입니다.
+     */
+    val buttons: List<io.github.monun.invfx.InvButton>
+
+    /**
+     * 좌표에 등록된 버튼을 가져옵니다.
+     */
+    fun buttonAt(x: Int, y: Int): io.github.monun.invfx.InvButton?
 }

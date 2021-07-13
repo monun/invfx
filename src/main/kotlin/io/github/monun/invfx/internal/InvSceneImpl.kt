@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.internal
+package io.github.monun.invfx.internal
 
-import com.github.monun.invfx.InvScene
-import com.github.monun.invfx.InvStage
-import com.github.monun.invfx.builder.InvSceneBuilder
+import io.github.monun.invfx.InvScene
+import io.github.monun.invfx.InvStage
+import io.github.monun.invfx.builder.InvSceneBuilder
 import com.google.common.collect.ImmutableList
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent

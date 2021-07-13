@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.plugin
+package io.github.monun.invfx.plugin
 
-import com.github.monun.invfx.window
+import io.github.monun.invfx.window
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

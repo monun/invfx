@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx
+package io.github.monun.invfx
 
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent

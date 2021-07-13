@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx
+package io.github.monun.invfx
 
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit

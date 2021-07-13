@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx
+package io.github.monun.invfx.internal
 
-/**
- * [InvPane]과 [InvListView]로 구성 가능한 [InvWindow]클래스
- */
-interface InvScene : InvWindow {
-    /**
-     * 등록된 [InvRegion] 목록
-     */
-    val regions: List<InvRegion>
-
-    /**
-     * 좌표에 등록된 [InvRegion]을 반환합니다.
-     */
-    fun regionAt(x: Int, y: Int): InvRegion?
+internal fun <T> Iterable<T>.forEachInvokeSafety(action: (T) -> Unit) {
+    forEach { it.runCatching(action).onFailure(Throwable::printStackTrace) }
 }

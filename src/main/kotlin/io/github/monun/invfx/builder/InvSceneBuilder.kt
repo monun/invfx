@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.builder
+package io.github.monun.invfx.builder
 
-import com.github.monun.invfx.InvListView
-import com.github.monun.invfx.InvPane
-import com.github.monun.invfx.InvScene
-import com.github.monun.invfx.internal.InvRegionImpl
-import com.github.monun.invfx.internal.InvSceneImpl
+import io.github.monun.invfx.InvListView
+import io.github.monun.invfx.InvPane
+import io.github.monun.invfx.InvScene
+import io.github.monun.invfx.internal.InvRegionImpl
+import io.github.monun.invfx.internal.InvSceneImpl
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent

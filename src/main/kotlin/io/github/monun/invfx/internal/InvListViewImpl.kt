@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.internal
+package io.github.monun.invfx.internal
 
-import com.github.monun.invfx.InvListView
-import com.github.monun.invfx.builder.InvListViewBuilder
+import io.github.monun.invfx.InvListView
+import io.github.monun.invfx.builder.InvListViewBuilder
 import com.google.common.collect.ImmutableList
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack

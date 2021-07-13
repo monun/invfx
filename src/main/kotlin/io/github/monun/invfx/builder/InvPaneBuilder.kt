@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.builder
+package io.github.monun.invfx.builder
 
-import com.github.monun.invfx.InvButton
-import com.github.monun.invfx.InvPane
-import com.github.monun.invfx.internal.InvPaneImpl
-import com.github.monun.invfx.internal.InvSceneImpl
+import io.github.monun.invfx.InvButton
+import io.github.monun.invfx.InvPane
+import io.github.monun.invfx.internal.InvPaneImpl
+import io.github.monun.invfx.internal.InvSceneImpl
 import org.bukkit.event.inventory.InventoryClickEvent
 
 /**
@@ -45,7 +45,7 @@ class InvPaneBuilder internal constructor(scene: InvSceneImpl, x: Int, y: Int, w
     /**
      * [InvButton]을 추가합니다.
      */
-    fun button(x: Int, y: Int, init: (InvButtonBuilder.() -> Unit)? = null): InvButton {
+    fun button(x: Int, y: Int, init: (InvButtonBuilder.() -> Unit)? = null): io.github.monun.invfx.InvButton {
         instance.let {
             require(x in 0 until it.width && y in 0 until it.height) { "Out of range  args=(x=$x y=$y) region=${it.regionString})" }
         }

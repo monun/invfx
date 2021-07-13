@@ -1,16 +1,16 @@
 package com.github.noonmaru
 
-import net.minecraft.server.v1_16_R3.DispenserRegistry
-import net.minecraft.server.v1_16_R3.WorldServer
+import net.minecraft.server.DispenserRegistry
+import net.minecraft.server.level.WorldServer
 import org.apache.commons.lang.reflect.FieldUtils
 import org.apache.logging.log4j.LogManager
 import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.World
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemFactory
-import org.bukkit.craftbukkit.v1_16_R3.util.Versioning
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemFactory
+import org.bukkit.craftbukkit.v1_17_R1.util.Versioning
 import org.mockito.Mockito
 import org.spigotmc.SpigotWorldConfig
 import java.util.logging.Logger

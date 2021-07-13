@@ -13,9 +13,9 @@
 * Pane (Button)
 ---
 ### 환경
-* JDK 8
-* Kotlin 1.5.10
-* Paper 1.16.5
+* JDK 16
+* Kotlin 1.5.20
+* Paper 1.17.1
 ### Gradle
 ```groovy
 allprojects {
@@ -27,7 +27,7 @@ allprojects {
 ```
 ```groovy
 dependencies {
-    implementation 'com.github.monun:invfx:Tag'
+    implementation 'io.github.monun:invfx:Tag'
 }
 ```
 ---

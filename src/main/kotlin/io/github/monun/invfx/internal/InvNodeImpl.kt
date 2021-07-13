@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.internal
+package io.github.monun.invfx.internal
 
-import com.github.monun.invfx.InvNode
+import io.github.monun.invfx.InvNode
 
 internal abstract class InvNodeImpl(final override val x: Int, final override val y: Int) : InvNode

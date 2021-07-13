@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.internal
+package io.github.monun.invfx
 
-import com.github.monun.invfx.InvRegion
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.inventory.ItemStack
 
-internal abstract class InvRegionImpl(
-    override val scene: InvSceneImpl,
-    x: Int,
-    y: Int,
-    override val width: Int, override val height: Int
-) : InvNodeImpl(x, y), InvRegion {
-    abstract fun onClick(x: Int, y: Int, event: InventoryClickEvent)
-
-    open fun onOpen(event: InventoryOpenEvent) {}
+/**
+ * [InvPane]에 등록가능한 버튼입니다.
+ */
+interface InvButton : io.github.monun.invfx.InvNode {
+    val pane: io.github.monun.invfx.InvPane
+    var item: ItemStack?
+        get() = pane.getItem(x, y)
+        set(value) = pane.setItem(x, y, value)
 }

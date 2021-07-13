@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.builder
+package io.github.monun.invfx.builder
 
-import com.github.monun.invfx.InvButton
-import com.github.monun.invfx.internal.InvButtonImpl
-import com.github.monun.invfx.internal.InvPaneImpl
+import io.github.monun.invfx.InvButton
+import io.github.monun.invfx.internal.InvButtonImpl
+import io.github.monun.invfx.internal.InvPaneImpl
 import org.bukkit.event.inventory.InventoryClickEvent
 
 /**
@@ -28,9 +28,9 @@ class InvButtonBuilder internal constructor(pane: InvPaneImpl, x: Int, y: Int) {
 
     internal val instance: InvButtonImpl = InvButtonImpl(pane, x, y)
 
-    internal val initActions = ArrayList<(InvButton) -> Unit>(0)
+    internal val initActions = ArrayList<(io.github.monun.invfx.InvButton) -> Unit>(0)
 
-    internal val clickActions = ArrayList<(InvButton, InventoryClickEvent) -> Unit>(0)
+    internal val clickActions = ArrayList<(io.github.monun.invfx.InvButton, InventoryClickEvent) -> Unit>(0)
 
     internal fun build(): InvButtonImpl {
         return instance.apply {
@@ -41,14 +41,14 @@ class InvButtonBuilder internal constructor(pane: InvPaneImpl, x: Int, y: Int) {
     /**
      * [InvButton]이 초기화될 때 호출됩니다.
      */
-    fun onInit(action: (button: InvButton) -> Unit) {
+    fun onInit(action: (button: io.github.monun.invfx.InvButton) -> Unit) {
         initActions += action
     }
 
     /**
      * [org.bukkit.entity.Player]가 [InvButton]을 클릭할 때 호출됩니다.
      */
-    fun onClick(action: (button: InvButton, event: InventoryClickEvent) -> Unit) {
+    fun onClick(action: (button: io.github.monun.invfx.InvButton, event: InventoryClickEvent) -> Unit) {
         clickActions += action
     }
 }

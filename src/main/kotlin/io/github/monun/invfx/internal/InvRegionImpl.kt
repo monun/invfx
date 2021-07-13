@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx
+package io.github.monun.invfx.internal
 
-/**
- * [InvButton]추가가 가능한 [InvScene]의 구성요소
- */
-interface InvPane : InvRegion {
-    /**
-     * 등록된 버튼목록입니다.
-     */
-    val buttons: List<InvButton>
+import io.github.monun.invfx.InvRegion
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 
-    /**
-     * 좌표에 등록된 버튼을 가져옵니다.
-     */
-    fun buttonAt(x: Int, y: Int): InvButton?
+internal abstract class InvRegionImpl(
+    override val scene: InvSceneImpl,
+    x: Int,
+    y: Int,
+    override val width: Int, override val height: Int
+) : InvNodeImpl(x, y), InvRegion {
+    abstract fun onClick(x: Int, y: Int, event: InventoryClickEvent)
+
+    open fun onOpen(event: InventoryOpenEvent) {}
 }

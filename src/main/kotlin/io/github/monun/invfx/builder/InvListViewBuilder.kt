@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.builder
+package io.github.monun.invfx.builder
 
-import com.github.monun.invfx.InvListView
-import com.github.monun.invfx.internal.InvListViewImpl
-import com.github.monun.invfx.internal.InvRegionImpl
-import com.github.monun.invfx.internal.InvSceneImpl
+import io.github.monun.invfx.InvListView
+import io.github.monun.invfx.internal.InvListViewImpl
+import io.github.monun.invfx.internal.InvRegionImpl
+import io.github.monun.invfx.internal.InvSceneImpl
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent

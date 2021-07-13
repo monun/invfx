@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.internal
+package io.github.monun.invfx.internal
 
-import com.github.monun.invfx.InvButton
-import com.github.monun.invfx.builder.InvButtonBuilder
+import io.github.monun.invfx.InvButton
+import io.github.monun.invfx.builder.InvButtonBuilder
 import com.google.common.collect.ImmutableList
 import org.bukkit.event.inventory.InventoryClickEvent
 
 internal class InvButtonImpl(
     override val pane: InvPaneImpl,
     x: Int, y: Int
-) : InvNodeImpl(x, y), InvButton {
+) : InvNodeImpl(x, y), io.github.monun.invfx.InvButton {
 
-    private lateinit var clickActions: List<(InvButton, InventoryClickEvent) -> Unit>
+    private lateinit var clickActions: List<(io.github.monun.invfx.InvButton, InventoryClickEvent) -> Unit>
 
     fun initialize(builder: InvButtonBuilder) {
         clickActions = ImmutableList.copyOf(builder.clickActions)

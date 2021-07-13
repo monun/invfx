@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.builder
+package io.github.monun.invfx.builder
 
-import com.github.monun.invfx.InvRegion
-import com.github.monun.invfx.internal.InvRegionImpl
+import io.github.monun.invfx.InvRegion
+import io.github.monun.invfx.internal.InvRegionImpl
 
 /**
  * [InvRegion]를 사전설정 할 수 있는 클래스

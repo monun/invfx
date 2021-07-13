@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx
+package io.github.monun.invfx
 
-import com.github.monun.invfx.builder.InvSceneBuilder
+import io.github.monun.invfx.builder.InvSceneBuilder
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.monun.invfx.plugin
+package io.github.monun.invfx.plugin
 
-import com.github.monun.invfx.InvFX
-import com.github.monun.invfx.openWindow
-import com.github.monun.invfx.window
-import com.github.monun.kommand.kommand
-import com.github.monun.tap.util.updateFromGitHubMagically
+import io.github.monun.invfx.InvFX
+import io.github.monun.invfx.openWindow
+import io.github.monun.invfx.window
+import io.github.monun.kommand.Kommand
+import io.github.monun.kommand.KommandDispatcher
+import io.github.monun.kommand.internal.KommandDispatcherImpl
+import io.github.monun.tap.util.updateFromGitHubMagically
 import kotlinx.coroutines.DelicateCoroutinesApi
 import net.kyori.adventure.text.Component.text
 import org.bukkit.Bukkit
@@ -46,25 +48,23 @@ class InvFXPlugin : JavaPlugin() {
     }
 
     private fun setupCommands() {
-        kommand {
-            register("invfx") {
-                then("version") {
-                    executes { ctxt ->
-                        ctxt.sender.sendMessage("${description.name} ${description.version}")
-                    }
-                }
-                then("update") {
-                    executes {
-                        updateFromGitHubMagically("monun", "invfx", "InvFX.jar", it.sender::sendMessage)
-                    }
-                }
-                then("test") {
-                    require { sender -> sender is Player }
-                    executes {
-                        (it.sender as Player).openWindow(testWindow())
-                    }
+        Kommand.register("invfx") {
+            then("version") {
+                this.executes {
+                    it.source.sender.sendMessage("${description.name} ${description.version}")
                 }
             }
+        }
+        Kommand.register("update") {
+            executes {
+                updateFromGitHubMagically("monun", "invfx", "InvFX.jar", it.source.sender::sendMessage)
+            }
+        }
+        Kommand.register("test") {
+                executes {
+                    require(it.source.sender is Player)
+                    (it.source.sender as Player).openWindow(testWindow())
+                }
         }
     }
 
