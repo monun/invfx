@@ -6,9 +6,7 @@ plugins {
     kotlin("jvm") version "1.5.20"
     kotlin("plugin.serialization") version "1.5.20"
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("org.jetbrains.dokka") version "1.4.32"
     `maven-publish`
-    signing
 }
 java {
     toolchain {
@@ -124,6 +122,16 @@ tasks {
                 it.printStackTrace()
             }
             buildtoolsDir.deleteRecursively()
+        }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>(project.property("pluginName").toString()) {
+            artifactId = project.name
+            from(components["java"])
+            artifact(tasks["sourcesJar"])
         }
     }
 }
