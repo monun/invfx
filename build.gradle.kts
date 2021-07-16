@@ -1,51 +1,34 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import de.undercouch.gradle.tasks.download.Download
-import org.apache.commons.io.output.NullOutputStream
-
 plugins {
-    kotlin("jvm") version "1.5.10"
-    kotlin("plugin.serialization") version "1.5.10"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    kotlin("jvm") version "1.5.21"
+    kotlin("plugin.serialization") version "1.5.21"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("org.jetbrains.dokka") version "1.5.0"
     `maven-publish`
+    signing
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(16))
     }
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven(url = "https://papermc.io/repo/repository/maven-public/")
-    maven(url = "https://jitpack.io/")
 }
 
 dependencies {
-    compileOnly(kotlin("stdlib"))
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
-    compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
 
-    implementation("com.github.monun:tap:3.7.1")
-    implementation("com.github.monun:kommand:1.1.0")
+    implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("io.github.monun:tap-api:4.1.1")
+    implementation("io.github.monun:kommand-api:2.2.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
     testImplementation("org.mockito:mockito-core:3.6.28")
-    testImplementation("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
-}
-
-fun TaskContainer.createPaperJar(name: String, classifier: String = "", configuration: ShadowJar.() -> Unit) {
-    create<ShadowJar>(name) {
-        archiveBaseName.set(project.property("pluginName").toString())
-        archiveVersion.set("") // For bukkit plugin update
-        archiveClassifier.set(classifier)
-        from(sourceSets["main"].output)
-        configurations = listOf(project.configurations.implementation.get().apply { isCanBeResolved = true })
-        configuration()
-        minimize()
-    }
 }
 
 tasks {
@@ -57,86 +40,105 @@ tasks {
 
     test {
         useJUnitPlatform()
-        doLast {
-            file("logs").deleteRecursively()
-        }
     }
 
-    create<Jar>("sourcesJar") {
-        from(sourceSets["main"].allSource)
-        archiveClassifier.set("sources")
-    }
-
-    createPaperJar("paperJar") {
-        relocate("com.github.monun.kommand", "${rootProject.group}.${rootProject.name}.kommand")
-        relocate("com.github.monun.tap", "${rootProject.group}.${rootProject.name}.tap")
-    }
-
-    createPaperJar("debugJar", "DEBUG") {
-        var dest = File(rootDir, ".server/plugins")
-        val pluginName = archiveFileName.get()
-        val pluginFile = File(dest, pluginName)
-        if (pluginFile.exists()) dest = File(dest, "update")
+    create<Jar>("paperJar") {
+        from(sourceSets["main"].output)
+        archiveBaseName.set(project.name.capitalize())
+        archiveVersion.set("") // For bukkit plugin update
 
         doLast {
             copy {
                 from(archiveFile)
-                into(dest)
+                val plugins = File(rootDir, ".debug/plugins/")
+                into(if (File(plugins, archiveFileName.get()).exists()) File(plugins, "update") else plugins)
             }
         }
     }
 
-    build {
-        dependsOn(named("paperJar"))
+    create<Jar>("sourcesJar") {
+        archiveClassifier.set("sources")
+        from(sourceSets["main"].allSource)
     }
 
-    create<DefaultTask>("setupWorkspace") {
-        doLast {
-            val versions = arrayOf(
-                "1.16.5"
-            )
-            val buildtoolsDir = file(".buildtools")
-            val buildtools = File(buildtoolsDir, "BuildTools.jar")
+    create<Jar>("dokkaJar") {
+        archiveClassifier.set("javadoc")
+        dependsOn("dokkaHtml")
 
-            val maven = File(System.getProperty("user.home"), ".m2/repository/org/spigotmc/spigot/")
-            val repos = maven.listFiles { file: File -> file.isDirectory } ?: emptyArray()
-            val missingVersions = versions.filter { version ->
-                repos.find { it.name.startsWith(version) }?.also { println("Skip downloading spigot-$version") } == null
-            }.also { if (it.isEmpty()) return@doLast }
-
-            val download by registering(Download::class) {
-                src("https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar")
-                dest(buildtools)
-            }
-            download.get().download()
-
-            runCatching {
-                for (v in missingVersions) {
-                    println("Downloading spigot-$v...")
-
-                    javaexec {
-                        workingDir(buildtoolsDir)
-                        main = "-jar"
-                        args = listOf("./${buildtools.name}", "--rev", v)
-                        // Silent
-                        standardOutput = NullOutputStream.NULL_OUTPUT_STREAM
-                        errorOutput = NullOutputStream.NULL_OUTPUT_STREAM
-                    }
-                }
-            }.onFailure {
-                it.printStackTrace()
-            }
-            buildtoolsDir.deleteRecursively()
+        from("$buildDir/dokka/html/") {
+            include("**")
         }
     }
 }
 
 publishing {
     publications {
-        create<MavenPublication>(project.property("pluginName").toString()) {
-            artifactId = project.name
+        create<MavenPublication>("invfx") {
+            artifactId = "invfx"
             from(components["java"])
             artifact(tasks["sourcesJar"])
+            artifact(tasks["dokkaJar"])
+
+            repositories {
+                mavenLocal()
+
+                maven {
+                    name = "central"
+
+                    credentials.runCatching {
+                        val nexusUsername: String by project
+                        val nexusPassword: String by project
+                        username = nexusUsername
+                        password = nexusPassword
+                    }.onFailure {
+                        logger.warn("Failed to load nexus credentials, Check the gradle.properties")
+                    }
+
+                    url = uri(
+                        if ("SNAPSHOT" in version) {
+                            "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                        } else {
+                            "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                        }
+                    )
+                }
+            }
+
+            pom {
+                name.set("invfx")
+                description.set("Command dsl for paper server")
+                url.set("https://github.com/monun/invfx")
+
+                licenses {
+                    license {
+                        name.set("GNU General Public License version 3")
+                        url.set("https://opensource.org/licenses/GPL-3.0")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("monun")
+                        name.set("Monun")
+                        email.set("monun1010@gmail.com")
+                        url.set("https://github.com/monun")
+                        roles.addAll("developer")
+                        timezone.set("Asia/Seoul")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/monun/invfx.git")
+                    developerConnection.set("scm:git:ssh://github.com:monun/invfx.git")
+                    url.set("https://github.com/monun/invfx")
+                }
+            }
         }
     }
+}
+
+signing {
+    isRequired = true
+    sign(tasks.jar.get(), tasks["sourcesJar"], tasks["dokkaJar"])
+    sign(publishing.publications["invfx"])
 }

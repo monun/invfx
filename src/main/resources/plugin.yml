@@ -1,8 +1,7 @@
-name: $pluginName
-main: $pluginMain
-depend: ['Kotlin']
-api-version: '1.16'
+name: InvFX
+main: com.github.monun.invfx.plugin.InvFXPlugin
 version: $version
-commands:
-  invfx:
-    permission: invfx.commands
+api-version: '1.17'
+libraries:
+  - io.github.monun:tap:4.1.1
+  - io.github.monun:kommand:2.2.0

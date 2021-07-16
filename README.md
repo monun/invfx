@@ -1,37 +1,46 @@
 # InvFX
-[![Build Status](https://travis-ci.com/monun/invfx.svg?branch=master)](https://travis-ci.org/monun/invfx)
-[![JitPack](https://jitpack.io/v/monun/invfx.svg)](https://jitpack.io/#monun/invfx)
+
+![Maven Central](https://img.shields.io/maven-central/v/io.github.monun/invfx)
 ![GitHub](https://img.shields.io/github/license/monun/invfx)
+[![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UCDrAR1OWC2MD4s0JLetN0MA?label=%EA%B0%81%EB%B3%84&style=social)](https://www.youtube.com/channel/UCDrAR1OWC2MD4s0JLetN0MA)
 
 **Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
 
 ---
+
 ### 기능
+
 * InvWindow
 * InvScene
 * ListView
 * Pane (Button)
+
 ---
+
 ### 환경
-* JDK 8
-* Kotlin 1.5.10
-* Paper 1.16.5
+
+* JDK 16
+* Kotlin 1.5.21
+* Paper 1.17.1
+
 ### Gradle
-```groovy
-allprojects {
-    repositories {
-        ...
-        maven { url 'https://jitpack.io' }
-    }
+
+```kotlin
+repositories {
+    mavenCentral()
 }
 ```
-```groovy
+
+```kotlin
 dependencies {
-    implementation 'com.github.monun:invfx:Tag'
+    implementation("com.github.monun:invfx:Tag")
 }
 ```
+
 ---
+
 ### Example code
+
 ```kotlin
 InvFX.scene(5, "Example") {
     panel(0, 0, 9, 5) {
