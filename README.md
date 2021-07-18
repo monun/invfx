@@ -1,4 +1,4 @@
-# InvFX
+# InvFX (현재 사용 불가)
 
 ![Maven Central](https://img.shields.io/maven-central/v/io.github.monun/invfx)
 ![GitHub](https://img.shields.io/github/license/monun/invfx)
