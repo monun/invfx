@@ -3,7 +3,7 @@
 out/
 
 # Gradle
-.gradle/
+.gradle
 build/
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
@@ -11,7 +11,8 @@ build/
 !gradle-wrapper.properties
 
 # Debug server folder
-.debug/
+.debug-mojang/
+.debug-paper/
 
 # BuildTools
 .buildtools/

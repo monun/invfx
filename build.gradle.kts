@@ -1,9 +1,9 @@
+import de.undercouch.gradle.tasks.download.Download
+import org.apache.tools.ant.taskdefs.condition.Os
+import java.io.FileFilter
+
 plugins {
     kotlin("jvm") version "1.5.21"
-    kotlin("plugin.serialization") version "1.5.21"
-    id("org.jetbrains.dokka") version "1.5.0"
-    `maven-publish`
-    signing
 }
 
 java {
@@ -12,132 +12,174 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven(url = "https://papermc.io/repo/repository/maven-public/")
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("net.md-5:SpecialSource:1.10.0")
+    }
 }
 
-dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
 
-    implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
-    implementation("io.github.monun:tap-api:4.1.1")
-    implementation("io.github.monun:kommand-api:2.2.0")
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
-    testImplementation("org.mockito:mockito-core:3.6.28")
+    repositories {
+        maven("https://papermc.io/repo/repository/maven-public/")
+    }
+
+    dependencies {
+        compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
+
+        implementation(kotlin("stdlib"))
+
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+        testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+        testImplementation("org.mockito:mockito-core:3.6.28")
+    }
+}
+
+project(":${rootProject.name}-core") {
+    configurations {
+        create("mojangMapping")
+        create("spigotMapping")
+    }
 }
 
 tasks {
-    processResources {
-        filesMatching("**/*.yml") {
-            expand(project.properties)
-        }
+    val mavenLocal = File("${System.getProperty("user.home")}/.m2/repository/")
+    val nmsVersions = File(rootDir, "${rootProject.name}-core").listFiles { file ->
+        file.isDirectory && file.name.startsWith("v")
+    }?.map { it.name.removePrefix("v") } ?: emptyList()
+
+    val buildToolsDir = File(rootDir, ".buildtools")
+    val buildToolsJar = File(buildToolsDir, "BuildTools.jar")
+    val buildToolsMemory = project.properties["buildtoolsMemory"]?.toString() ?: "1G"
+
+    val downloadBuildToolsTask = register<Download>("downloadBuildTools") {
+        src("https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar")
+        dest(buildToolsJar)
+        onlyIfModified(true)
     }
 
-    test {
-        useJUnitPlatform()
+    val spigot = "spigot"
+    val spigotRepo = File(mavenLocal, "org/spigotmc/spigot/")
+    val spigotRepoVersions = spigotRepo.listFiles(FileFilter { it.isDirectory }) ?: emptyArray()
+    val spigotTasks = arrayListOf<TaskProvider<JavaExec>>()
+
+    nmsVersions.forEach { version ->
+        val mustRunAfters = spigotTasks.toList()
+        spigotTasks.add(register<JavaExec>("spigot-$version") {
+            onlyIf {
+                spigotRepoVersions.find { it.name.startsWith("$version-") }?.let { repo ->
+                    val artifactName = "$spigot-${repo.name}"
+                    val jar = File(repo, "$artifactName.jar")
+                    val pom = File(repo, "$artifactName.pom")
+                    val mojang = File(repo, "$artifactName-remapped-mojang.jar")
+                    val obf = File(repo, "$artifactName-remapped-obf.jar")
+                    return@onlyIf !(jar.exists() && pom.exists() && mojang.exists() && obf.exists())
+                }
+                true
+            }
+
+            dependsOn(downloadBuildToolsTask)
+            mustRunAfter(mustRunAfters)
+            workingDir(buildToolsDir)
+            mainClass.set("-jar")
+            jvmArgs("-Xmx$buildToolsMemory")
+            args(buildToolsJar.name, "--rev", version, "--remapped")
+        })
     }
 
-    create<Jar>("paperJar") {
-        from(sourceSets["main"].output)
-        archiveBaseName.set(project.name.capitalize())
-        archiveVersion.set("") // For bukkit plugin update
+    val paperDir = File(rootDir, ".paper")
+    val paper = "paper"
+    val paperRepo = File(mavenLocal, "io/papermc/paper/$paper")
+    val paperRepoVersions = paperRepo.listFiles(FileFilter { it.isDirectory }) ?: emptyArray()
+    val paperGitInfos = mapOf(
+        "1.17.1" to ("master" to "321dd1d655f988f7c7764fd8e6c4fc026c2e7a9e"),
+        "1.17" to ("master" to "a831634d446341efc70f027851effe02a0e7f1d3")
+    )
+    val paperTasks = arrayListOf<TaskProvider<DefaultTask>>()
 
+    nmsVersions.forEach { version ->
+        val mustRunAfters = paperTasks.toList()
+        paperTasks.add(register<DefaultTask>("paper-$version") {
+            val paperGitInfo = paperGitInfos[version] ?: error("Not found paper commit for $version")
+            onlyIf {
+                paperRepoVersions.find { it.name.startsWith("$version-") }?.let { repo ->
+                    val artifactName = "$paper-${repo.name}"
+                    val jar = File(repo, "$artifactName.jar")
+                    val pom = File(repo, "$artifactName.pom")
+                    val mojang = File(repo, "$artifactName-mojang-mapped.jar")
+                    return@onlyIf !(jar.exists() && pom.exists() && mojang.exists())
+                }
+                true
+            }
+
+            mustRunAfter(mustRunAfters)
+
+            doLast {
+                fun git(vararg args: String) = exec {
+                    workingDir(paperDir)
+                    commandLine("git")
+                    args(*args)
+                }
+
+                fun gradlew(vararg args: String) = exec {
+                    workingDir(paperDir)
+                    commandLine(if (Os.isFamily(Os.FAMILY_DOS)) "gradlew.bat" else "./gradlew")
+                    args(*args)
+                }
+
+                git("fetch", "--all")
+                git("checkout", paperGitInfo.first)
+                git("reset", "--hard", paperGitInfo.second)
+                gradlew("applyPatches")
+                gradlew("publishToMavenLocal")
+                gradlew("clean", "shadowJar")
+            }
+        })
+    }
+
+    val setupSpigot = register<DefaultTask>("setupSpigot") {
+        dependsOn(spigotTasks)
+    }
+    val setupPaper = register<DefaultTask>("setupPaper") {
+        mustRunAfter(setupSpigot)
+        dependsOn(paperTasks)
+    }
+    val setupDependencies = register<DefaultTask>("setupDependencies") {
+        dependsOn(setupSpigot)
+        dependsOn(setupPaper)
+    }
+    val setupModules = register<DefaultTask>("setupModules") {
         doLast {
-            copy {
-                from(archiveFile)
-                val plugins = File(rootDir, ".debug/plugins/")
-                into(if (File(plugins, archiveFileName.get()).exists()) File(plugins, "update") else plugins)
+            val defaultPrefix = "sample"
+            val projectPrefix = rootProject.name
+
+            if (defaultPrefix != projectPrefix) {
+                fun rename(suffix: String) {
+                    val from ="$defaultPrefix-$suffix"
+                    val to = "$projectPrefix-$suffix"
+                    file(from).renameTo(file(to))
+                    println("$from -> $to")
+                }
+
+                rename("api")
+                rename("core")
+                rename("debug")
             }
         }
     }
-
-    create<Jar>("sourcesJar") {
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
+    register<DefaultTask>("setupWorkspace") {
+        dependsOn(setupDependencies)
+        dependsOn(setupModules)
     }
-
-    create<Jar>("dokkaJar") {
-        archiveClassifier.set("javadoc")
-        dependsOn("dokkaHtml")
-
-        from("$buildDir/dokka/html/") {
-            include("**")
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("invfx") {
-            artifactId = "invfx"
-            from(components["java"])
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["dokkaJar"])
-
-            repositories {
-                mavenLocal()
-
-                maven {
-                    name = "central"
-
-                    credentials.runCatching {
-                        val nexusUsername: String by project
-                        val nexusPassword: String by project
-                        username = nexusUsername
-                        password = nexusPassword
-                    }.onFailure {
-                        logger.warn("Failed to load nexus credentials, Check the gradle.properties")
-                    }
-
-                    url = uri(
-                        if ("SNAPSHOT" in version) {
-                            "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                        } else {
-                            "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                        }
-                    )
-                }
-            }
-
-            pom {
-                name.set("invfx")
-                description.set("Command dsl for paper server")
-                url.set("https://github.com/monun/invfx")
-
-                licenses {
-                    license {
-                        name.set("GNU General Public License version 3")
-                        url.set("https://opensource.org/licenses/GPL-3.0")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("monun")
-                        name.set("Monun")
-                        email.set("monun1010@gmail.com")
-                        url.set("https://github.com/monun")
-                        roles.addAll("developer")
-                        timezone.set("Asia/Seoul")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/monun/invfx.git")
-                    developerConnection.set("scm:git:ssh://github.com:monun/invfx.git")
-                    url.set("https://github.com/monun/invfx")
-                }
-            }
-        }
-    }
-}
-
-signing {
-    isRequired = true
-    sign(tasks.jar.get(), tasks["sourcesJar"], tasks["dokkaJar"])
-    sign(publishing.publications["invfx"])
 }

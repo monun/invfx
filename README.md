@@ -1,29 +1,27 @@
-# InvFX (현재 사용 불가)
+# InvFX
 
 ![Maven Central](https://img.shields.io/maven-central/v/io.github.monun/invfx)
 ![GitHub](https://img.shields.io/github/license/monun/invfx)
 [![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UCDrAR1OWC2MD4s0JLetN0MA?label=%EA%B0%81%EB%B3%84&style=social)](https://www.youtube.com/channel/UCDrAR1OWC2MD4s0JLetN0MA)
 
-**Kotlin**으로 작성된 ***Bukkit(Spigot, Paper)*** 플랫폼의 **InventoryGUI** 라이브러리
+### Paper InventoryGUI 라이브러리
 
 ---
 
-### 기능
+* #### Features
+    * Frame
+      * Button
+      * Pane
+      * List
 
-* InvWindow
-* InvScene
-* ListView
-* Pane (Button)
+* #### Environment
+    * JDK 16
+    * Kotlin 1.5.21
+    * Paper & Spigot 1.17, 1.17.1
 
 ---
 
-### 환경
-
-* JDK 16
-* Kotlin 1.5.21
-* Paper 1.17.1
-
-### Gradle
+#### Gradle
 
 ```kotlin
 repositories {
@@ -33,28 +31,25 @@ repositories {
 
 ```kotlin
 dependencies {
-    implementation("com.github.monun:invfx:Tag")
+    implementation("io.github.monun:invfx:<version>")
 }
+```
+
+### plugins.yml
+
+```yaml
+name: ...
+version: ...
+main: ...
+libraries:
+  - io.github.monun:invfx:<version>
 ```
 
 ---
 
-### Example code
+### NOTE
 
-```kotlin
-InvFX.scene(5, "Example") {
-    panel(0, 0, 9, 5) {
-        listView(1, 1, 7, 3, false, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".map { it.toString() }) {
-            transform { item -> ItemStack(Material.BOOK).apply { lore(listOf(text(item))) } }
-            onClickItem { _, _, _, item, event -> event.whoClicked.sendMessage(text("CLICK_ITEM $item")) }
-        }.let { view ->
-            button(0, 2) {
-                onClick { _, _ -> view.page-- }
-            }
-            button(8, 2) {
-                onClick { _, _ -> view.page++ }
-            }
-        }
-    }
-}
-```
+* 라이센스는 GPL-3.0이며 변경 혹은 삭제를 금합니다.
+* `./gradlew setupWorkspace` 명령을 통해 작업환경을 구축 할 수 있습니다.
+
+---
