@@ -21,7 +21,6 @@ package io.github.monun.invfx.frame
 import io.github.monun.invfx.InvDSL
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
-import kotlin.math.max
 
 @InvDSL
 interface InvList<T>: InvRegion {

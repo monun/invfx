@@ -1,14 +1,10 @@
 rootProject.name = "invfx"
 
-val api = "${rootProject.name}-api"
-val core = "${rootProject.name}-core"
-val debug = "${rootProject.name}-debug"
+val prefix = "invfx"
+val core = "$prefix-core"
 
-include(api, core, debug)
-
-// load nms
-file(core).listFiles()?.filter {
-    it.isDirectory && it.name.startsWith("v")
-}?.forEach { file ->
-    include(":$core:${file.name}")
-}
+include(
+    "$prefix-api",
+    "$prefix-core",
+    "$prefix-debug"
+)

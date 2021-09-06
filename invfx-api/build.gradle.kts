@@ -1,21 +1,3 @@
-/*
- * InvFX
- * Copyright (C) 2021 Monun
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 plugins {
     id("org.jetbrains.dokka") version "1.5.0"
     `maven-publish`
@@ -71,15 +53,15 @@ publishing {
 
     publications {
         create<MavenPublication>("api") {
-            artifactId = project.name
+            artifactId = "invfx-api"
             from(components["java"])
             artifact(tasks["sourcesJar"])
             artifact(tasks["dokkaJar"])
 
             pom {
-                name.set(project.name)
-                description.set("Blah blah")
-                url.set("https://github.com/monun/${rootProject.name}")
+                name.set("invfx-api")
+                description.set("Paper inventory gui library interface")
+                url.set("https://github.com/monun/invfx")
 
                 licenses {
                     license {
@@ -100,9 +82,9 @@ publishing {
                 }
 
                 scm {
-                    connection.set("scm:git:git://github.com/monun/${rootProject.name}.git")
-                    developerConnection.set("scm:git:ssh://github.com:monun/${rootProject.name}.git")
-                    url.set("https://github.com/monun/${rootProject.name}")
+                    connection.set("scm:git:git://github.com/monun/invfx.git")
+                    developerConnection.set("scm:git:ssh://github.com:monun/invfx.git")
+                    url.set("https://github.com/monun/invfx")
                 }
             }
         }

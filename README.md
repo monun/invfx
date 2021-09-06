@@ -1,8 +1,11 @@
 # InvFX
 
-![Maven Central](https://img.shields.io/maven-central/v/io.github.monun/invfx)
-![GitHub](https://img.shields.io/github/license/monun/invfx)
-[![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UCDrAR1OWC2MD4s0JLetN0MA?label=%EA%B0%81%EB%B3%84&style=social)](https://www.youtube.com/channel/UCDrAR1OWC2MD4s0JLetN0MA)
+[![Kotlin](https://img.shields.io/badge/java-16.0.2-ED8B00.svg?logo=java)](https://www.azul.com/)
+[![Kotlin](https://img.shields.io/badge/kotlin-1.5.21-585DEF.svg?logo=kotlin)](http://kotlinlang.org)
+[![Gradle](https://img.shields.io/badge/gradle-7.2-02303A.svg?logo=gradle)](https://gradle.org)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.monun/invfx)](https://search.maven.org/artifact/io.github.monun/invfx)
+[![GitHub](https://img.shields.io/github/license/monun/invfx)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Kotlin](https://img.shields.io/badge/youtube-각별-red.svg?logo=youtube)](https://www.youtube.com/channel/UCDrAR1OWC2MD4s0JLetN0MA)
 
 ### Paper InventoryGUI 라이브러리
 
@@ -13,11 +16,6 @@
       * Button
       * Pane
       * List
-
-* #### Environment
-    * JDK 16
-    * Kotlin 1.5.21
-    * Paper & Spigot 1.17, 1.17.1
 
 ---
 
@@ -44,12 +42,3 @@ main: ...
 libraries:
   - io.github.monun:invfx:<version>
 ```
-
----
-
-### NOTE
-
-* 라이센스는 GPL-3.0이며 변경 혹은 삭제를 금합니다.
-* `./gradlew setupWorkspace` 명령을 통해 작업환경을 구축 할 수 있습니다.
-
----

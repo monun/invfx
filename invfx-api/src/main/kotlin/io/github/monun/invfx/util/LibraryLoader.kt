@@ -19,7 +19,6 @@
 package io.github.monun.invfx.util
 
 import org.apache.commons.lang.reflect.ConstructorUtils
-import org.bukkit.Bukkit
 import java.lang.reflect.InvocationTargetException
 
 object LibraryLoader {

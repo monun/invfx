@@ -19,7 +19,10 @@
 package io.github.monun.invfx.internal.frame
 
 import io.github.monun.invfx.InvWindow
-import io.github.monun.invfx.frame.*
+import io.github.monun.invfx.frame.InvFrame
+import io.github.monun.invfx.frame.InvList
+import io.github.monun.invfx.frame.InvPane
+import io.github.monun.invfx.frame.InvSlot
 import io.github.monun.invfx.util.getValue
 import io.github.monun.invfx.util.lazyVal
 import io.github.monun.invfx.util.setValue

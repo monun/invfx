@@ -16,13 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import net.md_5.specialsource.JarMapping
-import net.md_5.specialsource.JarRemapper
-import net.md_5.specialsource.provider.JarProvider
-import net.md_5.specialsource.provider.JointProvider
-import org.gradle.api.tasks.bundling.Jar
-import net.md_5.specialsource.Jar as SpecialJar
-
 plugins {
     id("org.jetbrains.dokka") version "1.5.0"
     `maven-publish`
@@ -30,83 +23,10 @@ plugins {
 }
 
 
-val api = project(":${rootProject.name}-api")
+val api = project(":invfx-api")
 
 dependencies {
     implementation(api)
-}
-
-subprojects {
-    configurations {
-        create("mojangMapping")
-        create("spigotMapping")
-    }
-
-    repositories {
-        maven("https://libraries.minecraft.net")
-        mavenLocal()
-    }
-
-
-    dependencies {
-        implementation(api)
-        implementation(requireNotNull(parent)) // core
-
-        if (project.name.startsWith("v")) {
-            compileOnly("com.mojang:brigadier:1.0.18")
-
-            val nmsVersion = project.name.removePrefix("v")
-
-            // source
-            compileOnly("io.papermc.paper:paper-api:$nmsVersion-R0.1-SNAPSHOT")
-            compileOnly("io.papermc.paper:paper-mojangapi:$nmsVersion-R0.1-SNAPSHOT")
-
-            // binary
-            compileOnly("io.papermc.paper:paper:$nmsVersion-R0.1-SNAPSHOT:mojang-mapped")
-            mojangMapping("org.spigotmc:minecraft-server:$nmsVersion-R0.1-SNAPSHOT:maps-mojang@txt")
-            spigotMapping("org.spigotmc:minecraft-server:$nmsVersion-R0.1-SNAPSHOT:maps-spigot@csrg")
-        }
-    }
-
-    tasks {
-        jar {
-            doLast {
-                fun remap(jarFile: File, outputFile: File, mappingFile: File, reversed: Boolean = false) {
-                    val inputJar = SpecialJar.init(jarFile)
-
-                    val mapping = JarMapping()
-                    mapping.loadMappings(mappingFile.canonicalPath, reversed, false, null, null)
-
-                    val provider = JointProvider()
-                    provider.add(JarProvider(inputJar))
-                    mapping.setFallbackInheritanceProvider(provider)
-
-                    val mapper = JarRemapper(mapping)
-                    mapper.remapJar(inputJar, outputFile)
-                    inputJar.close()
-                }
-
-                val archiveFile = archiveFile.get().asFile
-                val obfOutput = File(archiveFile.parentFile, "remapped-obf.jar")
-                val spigotOutput = File(archiveFile.parentFile, "remapped-spigot.jar")
-
-                val configurations = project.configurations
-                val mojangMapping = configurations.named("mojangMapping").get().firstOrNull()
-                val spigotMapping = configurations.named("spigotMapping").get().firstOrNull()
-
-                if (mojangMapping != null && spigotMapping != null) {
-                    remap(archiveFile, obfOutput, mojangMapping, true)
-                    remap(obfOutput, spigotOutput, spigotMapping)
-
-                    spigotOutput.copyTo(archiveFile, true)
-                    obfOutput.delete()
-                    spigotOutput.delete()
-                } else {
-                    throw IllegalStateException("Mojang and Spigot mapping should be specified for ${project.path}")
-                }
-            }
-        }
-    }
 }
 
 tasks {
@@ -172,7 +92,7 @@ publishing {
 
     publications {
         register<MavenPublication>("core") {
-            artifactId = rootProject.name
+            artifactId = "invfx"
 
             from(components["java"])
             artifact(tasks["paperJar"])
@@ -181,8 +101,8 @@ publishing {
 
             pom {
                 name.set(rootProject.name)
-                description.set("pom description")
-                url.set("https://github.com/monun/${rootProject.name}")
+                description.set("Paper inventory gui library implementation")
+                url.set("https://github.com/monun/invfx")
 
                 licenses {
                     license {
@@ -203,9 +123,9 @@ publishing {
                 }
 
                 scm {
-                    connection.set("scm:git:git://github.com/monun/${rootProject.name}.git")
-                    developerConnection.set("scm:git:ssh://github.com:monun/${rootProject.name}.git")
-                    url.set("https://github.com/monun/${rootProject.name}")
+                    connection.set("scm:git:git://github.com/monun/invfx.git")
+                    developerConnection.set("scm:git:ssh://github.com:monun/invfx.git")
+                    url.set("https://github.com/monun/invfx")
                 }
             }
         }

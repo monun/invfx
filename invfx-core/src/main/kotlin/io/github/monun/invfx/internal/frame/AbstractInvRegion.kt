@@ -19,9 +19,6 @@
 package io.github.monun.invfx.internal.frame
 
 import io.github.monun.invfx.frame.InvRegion
-import io.github.monun.invfx.util.getValue
-import io.github.monun.invfx.util.lazyVal
-import io.github.monun.invfx.util.setValue
 import org.bukkit.event.inventory.InventoryClickEvent
 
 abstract class AbstractInvRegion(
