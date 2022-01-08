@@ -7,7 +7,7 @@
 [![GitHub](https://img.shields.io/github/license/monun/invfx)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![Kotlin](https://img.shields.io/badge/youtube-각별-red.svg?logo=youtube)](https://www.youtube.com/channel/UCDrAR1OWC2MD4s0JLetN0MA)
 
-### Paper InventoryGUI 라이브러리
+### PaperMC InventoryGUI 라이브러리
 
 ---
 
