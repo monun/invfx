@@ -1,6 +1,6 @@
-
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
+    id("org.jetbrains.dokka") version "1.6.10" apply false
 }
 
 java {
@@ -23,8 +23,31 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT")
+        compileOnly("io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT")
 
         implementation(kotlin("stdlib"))
+        implementation(kotlin("reflect"))
+    }
+}
+
+listOf("api", "core").forEach { projectName ->
+    project(":${rootProject.name}-$projectName") {
+        apply(plugin = "org.jetbrains.dokka")
+
+        tasks {
+            create<Jar>("sourcesJar") {
+                archiveClassifier.set("sources")
+                from(sourceSets["main"].allSource)
+            }
+
+            create<Jar>("dokkaJar") {
+                archiveClassifier.set("javadoc")
+                dependsOn("dokkaHtml")
+
+                from("$buildDir/dokka/html/") {
+                    include("**")
+                }
+            }
+        }
     }
 }

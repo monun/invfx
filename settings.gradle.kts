@@ -1,10 +1,8 @@
 rootProject.name = "invfx"
 
-val prefix = "invfx"
-val core = "$prefix-core"
+val api = "${rootProject.name}-api"
+val core = "${rootProject.name}-core"
+val debug = "${rootProject.name}-plugin"
 
-include(
-    "$prefix-api",
-    "$prefix-core",
-    "$prefix-debug"
-)
+include(api, core, debug)
+include("${rootProject.name}-publish")
