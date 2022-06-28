@@ -63,7 +63,7 @@ class InvFrameImpl(
     private fun checkItemSlot(x: Int, y: Int) {
         val lines = inv.size / 9
         require(x in 0 until 9) { "require 0 <= x <= 8 ($x)" }
-        require(y in 0 until lines) { "require 0 <= y <= $lines ($y)" }
+        require(y in 0 until lines) { "require 0 <= y < $lines ($y)" }
     }
 
     override fun slot(x: Int, y: Int, init: InvSlot.() -> Unit): InvSlotImpl {
@@ -77,7 +77,7 @@ class InvFrameImpl(
     private fun checkRegion(x: Int, y: Int, width: Int, height: Int) {
         val lines = inv.size / 9
         require(x in 0 until 9) { "require 0 <= x <= 8 ($x)" }
-        require(y in 0 until lines) { "require 0 <= y <= $lines ($y)" }
+        require(y in 0 until lines) { "require 0 <= y < $lines ($y)" }
         require(x + width <= 9)
         require(y + height <= lines)
         require(regions.find { it.overlaps(x, y, x + width, y + width) } == null) { "Overlaps with other slot" }
