@@ -1,3 +1,13 @@
 dependencies {
-    api(project(":${rootProject.name}-api"))
+    api(projectApi)
+}
+
+tasks {
+    jar {
+        archiveClassifier.set("origin")
+    }
+
+    register<Jar>("coreReobfJar") {
+        from(sourceSets["main"].output)
+    }
 }
