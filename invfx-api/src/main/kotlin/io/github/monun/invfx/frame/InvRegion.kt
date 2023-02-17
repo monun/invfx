@@ -22,19 +22,17 @@ import io.github.monun.invfx.InvDSL
 
 @InvDSL
 interface InvRegion {
-    val x: Int
-    val y: Int
-    val width: Int
-    val height: Int
+    val minX: Int
+    val minY: Int
+    val maxX: Int
+    val maxY: Int
 
-    val minX
-        get() = x
-    val minY
-        get() = y
-    val maxX
-        get() = minX + width
-    val maxY
-        get() = minY + height
+    val width: Int
+        get() = maxX - minX + 1
+
+    val height: Int
+        get() = maxY - minY + 1
+
     val size: Int
         get() = width * height
 
@@ -45,6 +43,6 @@ interface InvRegion {
     fun overlaps(region: InvRegion) = overlaps(region.minX, region.minY, region.maxX, region.maxY)
 
     fun contains(x: Int, y: Int): Boolean {
-        return x in minX until maxX && y in minY until maxY
+        return x in minX..maxX && y in minY..maxY
     }
 }

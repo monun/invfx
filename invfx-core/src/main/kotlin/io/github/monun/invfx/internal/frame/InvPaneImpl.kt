@@ -29,11 +29,11 @@ import org.bukkit.inventory.ItemStack
 
 class InvPaneImpl(
     frame: InvFrame,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int
-) : AbstractInvRegion(x, y, width, height), InvPane {
+    minX: Int,
+    minY: Int,
+    maxX: Int,
+    maxY: Int
+) : AbstractInvRegion(minX, minY, maxX, maxY), InvPane {
     private val frame by weak(frame)
 
     private var onClick: ((Int, Int, InventoryClickEvent) -> Unit)? by lazyVal()
@@ -50,13 +50,13 @@ class InvPaneImpl(
     override fun item(x: Int, y: Int): ItemStack? {
         checkSlot(x, y)
 
-        return frame.item(this.x + x, this.y + y)
+        return frame.item(this.minX + x, this.minY + y)
     }
 
     override fun item(x: Int, y: Int, item: ItemStack?) {
         checkSlot(x, y)
 
-        frame.item(this.x + x, this.y + y, item)
+        frame.item(this.minX + x, this.minY + y, item)
     }
 
     override fun onClick(x: Int, y: Int, event: InventoryClickEvent) {

@@ -33,8 +33,8 @@ class InvFXPlugin : JavaPlugin() {
         val player = sender as Player
         val strings = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toList().map { it.toString() }
 
-        InvFX.frame(3, text("TEST")) {
-            list(1, 0, 3, 3, true, { strings }) {
+        InvFX.frame(6, text("TEST")) {
+            list(1, 1, 3, 3, true, { strings }) {
                 transform { s ->
                     ItemStack(Material.BOOK).apply {
                         editMeta { it.displayName(text(s)) }
@@ -58,7 +58,7 @@ class InvFXPlugin : JavaPlugin() {
                 }
             }
 
-            pane(5, 0, 3, 3) {
+            pane(5, 0, 7, 2) {
                 item(1, 1, ItemStack(Material.EMERALD))
 
                 onClick { x, y, _ ->

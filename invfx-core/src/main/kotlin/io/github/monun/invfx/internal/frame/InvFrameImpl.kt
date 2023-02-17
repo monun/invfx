@@ -74,36 +74,48 @@ class InvFrameImpl(
         return InvSlotImpl(this, x, y).apply(init).also { slots += it }
     }
 
-    private fun checkRegion(x: Int, y: Int, width: Int, height: Int) {
+    private fun checkRegion(minX: Int, minY: Int, maxX: Int, maxY: Int) {
         val lines = inv.size / 9
-        require(x in 0 until 9) { "require 0 <= x <= 8 ($x)" }
-        require(y in 0 until lines) { "require 0 <= y < $lines ($y)" }
-        require(x + width <= 9)
-        require(y + height <= lines)
-        require(regions.find { it.overlaps(x, y, x + width, y + width) } == null) { "Overlaps with other slot" }
-        require(slots.find { it.x in x until x + width && it.y in y until y + height } == null) { "Overlaps with other region" }
+
+        println(inv.size)
+        println(lines)
+
+        require(minX in 0 until 9) { "require 0 <= x <= 8 ($minX)" }
+        require(minY in 0 until lines) { "require 0 <= y < $lines ($minY)" }
+        require(maxX in 0 until 9) { "require 0 <= x <= 8 ($maxX)" }
+        require(maxY in 0 until lines) { "require 0 <= y < $lines ($maxY)" }
+
+        require(minX <= maxX) { "require minX <= maxX ($minX <= $maxX)" }
+        require(minY <= maxY) { "require minY <= maxY ($minY <= $maxY)" }
+
+        require(slots.none { slot ->
+            slot.x in minX..maxX && slot.y in minY..maxY
+        }) { "Overlaps with other slot" }
+        require(regions.none { region ->
+            region.overlaps(minX, minY, maxX, maxY)
+        }) { "Overlaps with other region" }
     }
 
-    override fun pane(x: Int, y: Int, width: Int, height: Int, init: InvPane.() -> Unit): InvPane {
-        checkRegion(x, y, width, height)
+    override fun pane(minX: Int, minY: Int, maxX: Int, maxY: Int, init: InvPane.() -> Unit): InvPane {
+        checkRegion(minX, minY, maxX, maxY)
 
-        return InvPaneImpl(this, x, y, width, height).apply(init).also {
+        return InvPaneImpl(this, minX, minY, maxX, maxY).apply(init).also {
             regions += it
         }
     }
 
     override fun <T> list(
-        x: Int,
-        y: Int,
-        width: Int,
-        height: Int,
+        minX: Int,
+        minY: Int,
+        maxX: Int,
+        maxY: Int,
         trim: Boolean,
         item: () -> List<T>,
         init: (InvList<T>.() -> Unit)?
-    ): InvListImpl<T> {
-        checkRegion(x, y, width, height)
+    ): InvList<T> {
+        checkRegion(minX, minY, maxX, maxY)
 
-        return InvListImpl(this, x, y, width, height, trim, item).apply {
+        return InvListImpl(this, minX, minY, maxX, maxY, trim, item).apply {
             init?.let { it() }
         }.also {
             regions += it
@@ -169,7 +181,7 @@ class InvFrameImpl(
         onClick?.runCatching { invoke(x, y, event) }
 
         regions.find { it.contains(x, y) }?.let {
-            it.onClick(x - it.x, y - it.y, event)
+            it.onClick(x - it.minX, y - it.minY, event)
         }
 
         slots.find { it.x == x && it.y == y }?.let {

@@ -22,10 +22,10 @@ import io.github.monun.invfx.frame.InvRegion
 import org.bukkit.event.inventory.InventoryClickEvent
 
 abstract class AbstractInvRegion(
-    final override val x: Int,
-    final override val y: Int,
-    final override val width: Int,
-    final override val height: Int
+    override val minX: Int,
+    override val minY: Int,
+    override val maxX: Int,
+    override val maxY: Int
 ) : InvRegion {
     abstract fun onClick(x: Int, y: Int, event: InventoryClickEvent)
 }

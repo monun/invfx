@@ -30,13 +30,13 @@ import kotlin.math.max
 
 class InvListImpl<T>(
     frame: InvFrame,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
+    minX: Int,
+    minY: Int,
+    maxX: Int,
+    maxY: Int,
     private val trim: Boolean,
     private val items: () -> List<T>
-) : AbstractInvRegion(x, y, width, height), InvList<T> {
+) : AbstractInvRegion(minX, minY, maxX, maxY), InvList<T> {
     private val frame by weak(frame)
 
     override var index = 0
@@ -96,7 +96,7 @@ class InvListImpl<T>(
             val x = i % width
             val y = i / width
 
-            frame.item(this.x + x, this.y + y, display)
+            frame.item(this.minX + x, this.minY + y, display)
         }
 
         onUpdate?.invoke(displays, offsetIndex)

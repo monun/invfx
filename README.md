@@ -42,3 +42,52 @@ main: ...
 libraries:
   - io.github.monun:invfx-core:<version>
 ```
+
+### Example
+```kotlin
+val strings = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toList().map { it.toString() }
+
+InvFX.frame(6, text("TEST")) {
+    // 목록
+    list(1, 1, 3, 3, true, { strings }) {
+        // strings를 아이템으로 변환
+        transform { s ->
+            ItemStack(Material.BOOK).apply {
+                editMeta { it.displayName(text(s)) }
+            }
+        }
+        // 클릭시 아이템 정보와 좌표 출력
+        onClickItem { x, y, item, _ ->
+            println("$x $y $item")
+        }
+    }.let { list ->
+        // 페이지 이동 버튼
+        slot(0, 1) {
+            item = ItemStack(Material.SLIME_BALL)
+            onClick {
+                list.page -= 1
+            }
+        }
+        slot(4, 1) {
+            item = ItemStack(Material.MAGMA_CREAM)
+            onClick {
+                list.page += 1
+            }
+        }
+    }
+    
+    // 상대좌표로 지정이 가능한 클래스
+    pane(5, 0, 7, 2) {
+        // pane 내의 1, 1 좌표에 아이템 설정
+        item(1, 1, ItemStack(Material.EMERALD))
+
+        onClick { x, y, _ ->
+            println("$x $y ${item(x, y)}")
+        }
+    }
+
+}.let {
+    player.openFrame(it)
+}
+
+```
