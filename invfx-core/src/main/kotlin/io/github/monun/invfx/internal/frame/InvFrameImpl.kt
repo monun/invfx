@@ -77,9 +77,6 @@ class InvFrameImpl(
     private fun checkRegion(minX: Int, minY: Int, maxX: Int, maxY: Int) {
         val lines = inv.size / 9
 
-        println(inv.size)
-        println(lines)
-
         require(minX in 0 until 9) { "require 0 <= x <= 8 ($minX)" }
         require(minY in 0 until lines) { "require 0 <= y < $lines ($minY)" }
         require(maxX in 0 until 9) { "require 0 <= x <= 8 ($maxX)" }
