@@ -24,16 +24,16 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 
 @InvDSL
-interface InvFrame:  InvSpace {
+interface InvFrame: InvSpace {
     fun slot(x: Int, y: Int, init: InvSlot.() -> Unit): InvSlot
 
-    fun pane(x: Int, y: Int, width: Int, height: Int, init: InvPane.() -> Unit): InvPane
+    fun pane(minX: Int, minY: Int, maxX: Int, maxY: Int, init: InvPane.() -> Unit): InvPane
 
     fun <T> list(
-        x: Int,
-        y: Int,
-        width: Int,
-        height: Int,
+        minX: Int,
+        minY: Int,
+        maxX: Int,
+        maxY: Int,
         trim: Boolean,
         item: () -> List<T>,
         init: (InvList<T>.() -> Unit)? = null

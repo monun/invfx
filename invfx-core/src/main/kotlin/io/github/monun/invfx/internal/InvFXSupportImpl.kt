@@ -46,7 +46,7 @@ class InvFXSupportImpl : InvFXSupport, Listener {
         if (plugin == null) {
             val pluginClassLoader = init.javaClass.classLoader as PluginClassLoader
             val plugin = pluginClassLoader.plugin
-            require(plugin.isEnabled)
+            require(plugin.isEnabled) { "Plugin is not enabled."}
             plugin.server.pluginManager.registerEvents(this, plugin)
             this.plugin = plugin
             plugin.logger.info("InvFX is ENABLED.")
@@ -124,8 +124,6 @@ class InvFXSupportImpl : InvFXSupport, Listener {
         event.player.openInventory.topInventory.window?.onDropItem(event)
     }
 }
-
-
 
 private val Inventory.window: InvWindow?
     get() = holder.takeIf { it is InvWindow } as? InvWindow
